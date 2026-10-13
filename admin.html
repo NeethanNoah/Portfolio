@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Portfolio Admin — Neethan</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{color-scheme:dark;--bg:#080b0d;--surface:#111619;--surface2:#161e22;--border:#26343e;--text:#e9eef0;--muted:#a8b5be;--accent:#9adbb0;--red:#e68a8a}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 Inter,system-ui,sans-serif}
+main{max-width:1100px;margin:0 auto;padding:28px 18px 70px}h1,h2{margin:0 0 12px}p{color:var(--muted)}a{color:var(--accent)}.top{display:flex;justify-content:space-between;gap:14px;align-items:center;margin-bottom:24px}.panel{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;margin:16px 0}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.wide{grid-column:1/-1}label{display:block;color:var(--muted);font-size:12px;margin-bottom:5px}input,textarea,select{width:100%;background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:11px;font:inherit}textarea{min-height:90px;resize:vertical}button{background:var(--accent);color:#08100b;border:0;border-radius:8px;padding:10px 14px;font-weight:700;cursor:pointer}button.secondary{background:var(--surface2);color:var(--text);border:1px solid var(--border)}button.danger{background:#4a2020;color:#ffe8e8}button:disabled{opacity:.5;cursor:not-allowed}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.status{padding:10px 12px;border:1px solid var(--border);border-radius:8px;margin:12px 0;white-space:pre-wrap}.item{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--border)}.item:last-child{border-bottom:0}.muted{color:var(--muted);font-size:13px}.hidden{display:none!important}.hint{font-size:12px;color:var(--muted)}@media(max-width:700px){.grid{grid-template-columns:1fr}.wide{grid-column:auto}.top{align-items:flex-start;flex-direction:column}}
+</style>
+</head>
+<body>
+<main>
+  <div class="top"><div><p style="margin:0 0 4px">NEETHAN.WORK / ADMIN</p><h1>Aerospace Portfolio Manager</h1><p style="margin:0">Manage projects stored in Supabase. This page is not linked from the public navigation.</p></div><a href="./index.html">← View portfolio</a></div>
+  <div id="configNotice" class="status">Before using this dashboard, add your Supabase Project URL and publishable key in this file's CONFIG section.</div>
+  <section id="authPanel" class="panel">
+    <h2>Admin sign in</h2>
+    <p>Sign in using the user you created in Supabase Authentication → Users.</p>
+    <form id="loginForm" class="grid">
+      <div><label for="email">Email</label><input id="email" type="email" autocomplete="username" required></div>
+      <div><label for="password">Password</label><input id="password" type="password" autocomplete="current-password" required></div>
+      <div class="wide actions"><button type="submit">Sign in</button></div>
+    </form>
+    <div id="authMessage" class="status hidden" role="status"></div>
+  </section>
+  <section id="appPanel" class="hidden">
+    <div class="panel">
+      <div class="top"><div><h2>Your projects</h2><p class="muted">Only published projects appear on the public portfolio.</p></div><button id="signOut" class="secondary">Sign out</button></div>
+      <div id="projectList"></div>
+    </div>
+    <div class="panel">
+      <h2 id="formHeading">Add a project</h2>
+      <form id="projectForm" class="grid">
+        <input type="hidden" id="projectId">
+        <div><label for="title">Project title *</label><input id="title" required maxlength="180"></div>
+        <div><label for="slug">Slug (unique, URL-friendly)</label><input id="slug" placeholder="hybrid-martian-rover"></div>
+        <div><label for="category">Category *</label><select id="category"><option value="robotics">Robotics</option><option value="structures">Structures</option><option value="aerodynamics">Aerodynamics</option><option value="space">Space systems</option><option value="manufacturing">Manufacturing</option><option value="research">Research</option></select></div>
+        <div><label for="projectDate">Project date</label><input id="projectDate" placeholder="2026"></div>
+        <div><label for="projectStatus">Project status / stage</label><input id="projectStatus" placeholder="In progress / Preliminary results"></div>
+        <div><label for="software">Software (comma-separated)</label><input id="software" placeholder="SOLIDWORKS, ANSYS"></div>
+        <div class="wide"><label for="summary">Short summary</label><textarea id="summary"></textarea></div>
+        <div class="wide"><label for="description">Description / objectives</label><textarea id="description"></textarea></div>
+        <div class="wide"><label for="contribution">Your contribution</label><textarea id="contribution"></textarea></div>
+        <div class="wide"><label for="methodology">Methodology</label><textarea id="methodology"></textarea></div>
+        <div class="wide"><label for="specs">Technical specifications (JSON object)</label><textarea id="specs" placeholder='{"Chassis":"2 x 2 x 2 ft","Software":"SolidWorks"}'>{}</textarea></div>
+        <div class="wide"><label for="results">Results (be precise and honest)</label><textarea id="results"></textarea></div>
+        <div class="wide"><label for="lessons">Lessons learned</label><textarea id="lessons"></textarea></div>
+        <div class="wide"><label for="limitations">Limitations</label><textarea id="limitations"></textarea></div>
+        <div><label for="tags">Tags (comma-separated)</label><input id="tags" placeholder="CAD, FEA, Space"></div>
+        <div><label for="status">Publication</label><select id="status"><option value="draft">Draft (private)</option><option value="published">Published (public)</option></select></div>
+        <div class="wide"><label for="cover">Cover image upload (optional)</label><input id="cover" type="file" accept="image/png,image/jpeg,image/webp,image/gif"><p class="hint">Uploads to the public portfolio-assets bucket. Only upload images intended for public viewing. Keep private reports in a separate private bucket.</p></div>
+        <div><label for="reportUrl">Public report URL (optional)</label><input id="reportUrl" type="url" placeholder="https://..."></div>
+        <div><label for="githubUrl">GitHub / demo URL (optional)</label><input id="githubUrl" type="url" placeholder="https://..."></div>
+        <div class="wide actions"><button type="submit">Save project</button><button type="button" id="resetForm" class="secondary">Clear form</button></div>
+      </form>
+      <div id="appMessage" class="status hidden" role="status"></div>
+    </div>
+  </section>
+</main>
+<script>
+// CONFIG: public browser values only. Never paste a service_role or secret key here.
+const SUPABASE_URL = "https://cqiudlsphgzxacrdfido.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_pIzMEszvrnF1fPvHbzOj2Q_dW9aut2C";
+const PUBLIC_ASSET_BUCKET = "portfolio-assets";
+const configured = window.supabase && SUPABASE_URL.startsWith("https://") &&
+  !SUPABASE_URL.includes("https://cqiudlsphgzxacrdfido.supabase.co") && SUPABASE_PUBLISHABLE_KEY &&
+  !SUPABASE_PUBLISHABLE_KEY.includes("sb_publishable_pIzMEszvrnF1fPvHbzOj2Q_dW9aut2C");
+const client = configured ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY) : null;
+const $ = id => document.getElementById(id);
+function message(id, text, error=false){ const el=$(id); el.textContent=text; el.classList.remove("hidden"); el.style.borderColor=error?"var(--red)":"var(--border)"; }
+function slugify(s){ return s.toLowerCase().trim().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,""); }
+function safeText(s){ return String(s ?? "").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+function showApp(session){ $("authPanel").classList.toggle("hidden",!!session); $("appPanel").classList.toggle("hidden",!session); if(session) refreshProjects(); }
+async function refreshProjects(){
+  const {data,error}=await client.from("projects").select("*").order("created_at",{ascending:false});
+  if(error){message("appMessage","Could not load projects: "+error.message,true);return;}
+  $("projectList").innerHTML=data.length?data.map(p=>`<div class="item"><div><strong>${safeText(p.title)}</strong><div class="muted">${safeText(p.category)} · ${safeText(p.status)} · ${safeText(p.project_status||"")}</div></div><div class="actions"><button class="secondary" data-edit="${p.id}">Edit</button><button class="danger" data-delete="${p.id}">Delete</button></div></div>`).join(""):"<p>No projects yet. Add your first project below.</p>";
+  $("projectList").querySelectorAll("[data-edit]").forEach(b=>b.onclick=()=>editProject(data.find(p=>p.id===b.dataset.edit)));
+  $("projectList").querySelectorAll("[data-delete]").forEach(b=>b.onclick=()=>deleteProject(b.dataset.delete));
+}
+function editProject(p){
+  $("projectId").value=p.id;$("title").value=p.title||"";$("slug").value=p.slug||slugify(p.title||"");
+  $("category").value=p.category||"space";$("projectDate").value=p.project_date||"";$("projectStatus").value=p.project_status||"";
+  $("software").value=Array.isArray(p.software)?p.software.join(", "):(p.software||"");
+  $("summary").value=p.summary||"";$("description").value=p.description||"";$("contribution").value=p.contribution||"";
+  $("methodology").value=p.methodology||"";$("specs").value=JSON.stringify(p.specs||{},null,2);$("results").value=p.results||"";
+  $("lessons").value=p.lessons||"";$("limitations").value=p.limitations||"";$("tags").value=(p.tags||[]).join(", ");
+  $("status").value=p.status||"draft";$("reportUrl").value=p.report_url||"";$("githubUrl").value=p.github_url||"";
+  $("formHeading").textContent="Edit project";window.scrollTo({top:document.body.scrollHeight,behavior:"smooth"});
+}
+function clearForm(){ $("projectForm").reset();$("projectId").value="";$("specs").value="{}";$("formHeading").textContent="Add a project"; }
+async function deleteProject(id){
+  if(!confirm("Delete this project permanently?"))return;
+  const {error}=await client.from("projects").delete().eq("id",id);
+  if(error){message("appMessage","Delete failed: "+error.message,true);return;}
+  message("appMessage","Project deleted.");clearForm();refreshProjects();
+}
+async function uploadCover(file, projectSlug){
+  if(!file)return null;
+  if(file.size>10*1024*1024)throw new Error("Image must be 10 MB or smaller.");
+  const ext=(file.name.split(".").pop()||"jpg").toLowerCase().replace(/[^a-z0-9]/g,"");
+  const path=`${projectSlug}/${Date.now()}.${ext}`;
+  const {error}=await client.storage.from(PUBLIC_ASSET_BUCKET).upload(path,file,{upsert:true,contentType:file.type});
+  if(error)throw error;
+  return client.storage.from(PUBLIC_ASSET_BUCKET).getPublicUrl(path).data.publicUrl;
+}
+$("loginForm").addEventListener("submit",async e=>{
+  e.preventDefault();
+  if(!client){message("authMessage","Add your Supabase URL and publishable key in this file first.",true);return;}
+  const {error}=await client.auth.signInWithPassword({email:$("email").value,password:$("password").value});
+  if(error){message("authMessage",error.message,true);return;}
+  showApp(true);
+});
+$("signOut").onclick=async()=>{await client.auth.signOut();showApp(false);};
+$("resetForm").onclick=clearForm;
+$("projectForm").addEventListener("submit",async e=>{
+  e.preventDefault(); if(!client)return;
+  let specs;try{specs=JSON.parse($("specs").value||"{}");if(!specs||Array.isArray(specs)||typeof specs!=="object")throw new Error();}catch(_){message("appMessage","Technical specifications must be a valid JSON object.",true);return;}
+  const title=$("title").value.trim();const slug=slugify($("slug").value||title);
+  if(!slug){message("appMessage","Please enter a valid title or slug.",true);return;}
+  const btn=$("projectForm").querySelector('[type="submit"]');btn.disabled=true;
+  try{
+    let coverUrl=null;
+    if($("cover").files[0])coverUrl=await uploadCover($("cover").files[0],slug);
+    const existingId=$("projectId").value;
+    const payload={
+      title,slug,category:$("category").value,project_date:$("projectDate").value.trim(),
+      project_status:$("projectStatus").value.trim(),software:$("software").value.split(",").map(x=>x.trim()).filter(Boolean),
+      summary:$("summary").value.trim(),description:$("description").value.trim(),contribution:$("contribution").value.trim(),
+      methodology:$("methodology").value.trim(),specs,tags:$("tags").value.split(",").map(x=>x.trim()).filter(Boolean),
+      results:$("results").value.trim(),lessons:$("lessons").value.trim(),limitations:$("limitations").value.trim(),
+      status:$("status").value,report_url:$("reportUrl").value.trim()||null,github_url:$("githubUrl").value.trim()||null,
+      updated_at:new Date().toISOString()
+    };
+    if(coverUrl)payload.cover_image=coverUrl;
+    let result;
+    if(existingId)result=await client.from("projects").update(payload).eq("id",existingId);
+    else result=await client.from("projects").insert(payload);
+    if(result.error)throw result.error;
+    message("appMessage",payload.status==="published"?"Project saved and published.":"Project saved as a draft.");
+    clearForm();await refreshProjects();
+  }catch(err){message("appMessage","Save failed: "+err.message,true);}
+  finally{btn.disabled=false;}
+});
+(async()=>{
+  if(!configured){message("authMessage","Setup needed: add your Supabase Project URL and publishable key to admin.html and index.html.",true);return;}
+  $("configNotice").classList.add("hidden");
+  const {data:{session}}=await client.auth.getSession();showApp(!!session);
+  client.auth.onAuthStateChange((_event,session)=>showApp(!!session));
+})();
+</script>
+</body>
+</html>
