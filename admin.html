@@ -27,7 +27,7 @@ main{max-width:1100px;margin:0 auto;padding:28px 18px 70px}h1,h2{margin:0 0 12px
   </section>
   <section id="appPanel" class="hidden">
     <div class="panel">
-      <div class="top"><div><h2>Your projects</h2><p class="muted">Only published projects appear on the public portfolio.</p></div><button id="signOut" class="secondary">Sign out</button></div>
+      <div class="top"><div><h2> projects</h2><p class="muted">Only published projects appear on the public portfolio.</p></div><button id="signOut" class="secondary">Sign out</button></div>
       <div id="projectList"></div>
     </div>
     <div class="panel">
@@ -42,7 +42,7 @@ main{max-width:1100px;margin:0 auto;padding:28px 18px 70px}h1,h2{margin:0 0 12px
         <div><label for="software">Software (comma-separated)</label><input id="software" placeholder="SOLIDWORKS, ANSYS"></div>
         <div class="wide"><label for="summary">Short summary</label><textarea id="summary"></textarea></div>
         <div class="wide"><label for="description">Description / objectives</label><textarea id="description"></textarea></div>
-        <div class="wide"><label for="contribution">Your contribution</label><textarea id="contribution"></textarea></div>
+        <div class="wide"><label for="contribution"> contribution</label><textarea id="contribution"></textarea></div>
         <div class="wide"><label for="methodology">Methodology</label><textarea id="methodology"></textarea></div>
         <div class="wide"><label for="specs">Technical specifications (JSON object)</label><textarea id="specs" placeholder='{"Chassis":"2 x 2 x 2 ft","Software":"SolidWorks"}'>{}</textarea></div>
         <div class="wide"><label for="results">Results (be precise and honest)</label><textarea id="results"></textarea></div>
@@ -64,9 +64,9 @@ main{max-width:1100px;margin:0 auto;padding:28px 18px 70px}h1,h2{margin:0 0 12px
 const SUPABASE_URL = "https://cqiudlsphgzxacrdfido.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_pIzMEszvrnF1fPvHbzOj2Q_dW9aut2C";
 const PUBLIC_ASSET_BUCKET = "portfolio-assets";
-const configured = window.supabase && SUPABASE_URL.startsWith("https://") &&
+const configured = window.supabase && SUPABASE_URL.startsWith("https://cqiudlsphgzxacrdfido.supabase.co") &&
   !SUPABASE_URL.includes("https://cqiudlsphgzxacrdfido.supabase.co") && SUPABASE_PUBLISHABLE_KEY &&
-  !SUPABASE_PUBLISHABLE_KEY.includes("sb_publishable_pIzMEszvrnF1fPvHbzOj2Q_dW9aut2C");
+  !SUPABASE_PUBLISHABLE_KEY.includes("sbsb_publishable_pIzMEszvrnF1fPvHbzOj2Q_dW9aut2C");
 const client = configured ? window.supabase.createClient(https://cqiudlsphgzxacrdfido.supabase.co, sb_publishable_pIzMEszvrnF1fPvHbzOj2Q_dW9aut2C) : null;
 const $ = id => document.getElementById(id);
 function message(id, text, error=false){ const el=$(id); el.textContent=text; el.classList.remove("hidden"); el.style.borderColor=error?"var(--red)":"var(--border)"; }
