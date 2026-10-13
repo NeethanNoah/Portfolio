@@ -67,7 +67,7 @@ const PUBLIC_ASSET_BUCKET = "portfolio-assets";
 const configured = window.supabase && SUPABASE_URL.startsWith("https://") &&
   !SUPABASE_URL.includes("https://cqiudlsphgzxacrdfido.supabase.co") && SUPABASE_PUBLISHABLE_KEY &&
   !SUPABASE_PUBLISHABLE_KEY.includes("sb_publishable_pIzMEszvrnF1fPvHbzOj2Q_dW9aut2C");
-const client = configured ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY) : null;
+const client = configured ? window.supabase.createClient(https://cqiudlsphgzxacrdfido.supabase.co, sb_publishable_pIzMEszvrnF1fPvHbzOj2Q_dW9aut2C) : null;
 const $ = id => document.getElementById(id);
 function message(id, text, error=false){ const el=$(id); el.textContent=text; el.classList.remove("hidden"); el.style.borderColor=error?"var(--red)":"var(--border)"; }
 function slugify(s){ return s.toLowerCase().trim().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,""); }
