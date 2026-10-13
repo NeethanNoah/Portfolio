@@ -756,15 +756,21 @@ const JOURNAL = [
 // Never put a service_role/secret key in this public HTML file.
 const SUPABASE_URL = "https://cqiudlsphgzxacrdfido.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_pIzMEszvrnF1fPvHbzOj2Q_dW9aut2C";
+
 const supabaseReady =
   window.supabase &&
   SUPABASE_URL.startsWith("https://") &&
-  !SUPABASE_URL.includes("https://cqiudlsphgzxacrdfido.supabase.co") &&
+  !SUPABASE_URL.includes("PASTE_") &&
   SUPABASE_PUBLISHABLE_KEY &&
-  !SUPABASE_PUBLISHABLE_KEY.includes("sb_publishable_pIzMEszvrnF1fPvHbzOj2Q_dW9aut2C ");
+  !SUPABASE_PUBLISHABLE_KEY.includes("PASTE_");
+
 const sb = supabaseReady
-  ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY)
+  ? window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_PUBLISHABLE_KEY
+    )
   : null;
+
 
 function escapeAttribute(value) {
   return String(value || "").replace(/&/g, "&amp;").replace(/"/g, "&quot;")
