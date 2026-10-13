@@ -1,0 +1,1055 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Neethan — Aerospace Engineering Portfolio</title>
+<meta name="description" content="Aerospace Engineering portfolio of Neethan — spacecraft, planetary robotics, propulsion, CFD, FEA."/>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+:root{
+  --bg:#080B0D;
+  --surface:#111619;
+  --surface2:#161E22;
+  --surface3:#1C262C;
+  --border:#1E2A31;
+  --border2:#26343E;
+  --text:#E9EEF0;
+  --muted:#7F8B93;
+  --muted2:#A8B5BE;
+  --accent:#9ADBB0;
+  --accent2:#7FBF96;
+  --accent-dim:rgba(154,219,176,0.12);
+  --silver:#C9D2D8;
+  --yellow:#E6D68A;
+  --red:#E68A8A;
+  --blue:#8AB4E6;
+  --mono:'JetBrains Mono',monospace;
+  --sans:'Inter',system-ui,sans-serif;
+  --display:'Anton',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--sans);
+  line-height:1.6;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+::selection{background:var(--accent);color:#00140A}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:10px}
+::-webkit-scrollbar-track{background:var(--bg)}
+a{color:inherit;text-decoration:none}
+button{font:inherit;background:none;border:none;cursor:pointer;color:inherit}
+img{display:block;max-width:100%}
+/* canvas */
+#particle-layer{
+  position:fixed;inset:0;pointer-events:none;z-index:0;
+}
+#stream-canvas{position:absolute;left:0;top:0;width:100%;height:100%;}
+#grid-overlay{
+  position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.22;
+  background-image:
+    linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size:72px 72px;
+  mask-image:radial-gradient(ellipse at 70% 20%, black 30%, transparent 75%);
+}
+/* header */
+.header{
+  position:sticky;top:0;z-index:50;
+  backdrop-filter:blur(16px) saturate(1.2);
+  background:rgba(8,11,13,0.72);
+  border-bottom:1px solid var(--border);
+}
+.header-inner{
+  max-width:1440px;margin:0 auto;
+  padding:14px 28px;
+  display:flex;align-items:center;justify-content:space-between;
+  gap:24px;
+}
+.logo{
+  display:flex;align-items:center;gap:10px;
+  font-family:var(--mono);font-size:12px;letter-spacing:.12em;
+}
+.logo-mark{
+  width:26px;height:26px;background:var(--text);color:var(--bg);
+  display:grid;place-items:center;font-weight:700;border-radius:4px;
+  font-family:var(--display);font-size:14px;
+}
+.nav{
+  display:flex;align-items:center;gap:6px;
+  background:rgba(22,30,34,0.9);border:1px solid var(--border);
+  padding:4px;border-radius:999px;
+}
+.nav a{
+  font-family:var(--mono);font-size:11px;letter-spacing:.08em;
+  padding:7px 14px;border-radius:999px;transition:.2s;
+  color:var(--muted);
+}
+.nav a.active,.nav a:hover{background:var(--text);color:var(--bg)}
+.header-actions{display:flex;align-items:center;gap:12px}
+.kbd{
+  font-family:var(--mono);font-size:10px;
+  border:1px solid var(--border2);padding:5px 9px;border-radius:6px;
+  color:var(--muted);display:flex;align-items:center;gap:6px;
+}
+.mobile-toggle{display:none;width:36px;height:36px;border:1px solid var(--border);border-radius:8px;place-items:center}
+/* hero */
+.hero{
+  position:relative;z-index:1;
+  max-width:1440px;margin:0 auto;
+  padding:84px 28px 36px;
+  min-height:92vh;
+  display:grid;grid-template-columns:1.15fr .85fr;gap:40px;
+  align-items:start;
+}
+.hero-copy{position:relative}
+.eyebrow{
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;
+  color:var(--muted);text-transform:uppercase;margin-bottom:22px;display:flex;align-items:center;gap:10px;
+}
+.eyebrow::before{content:"";width:28px;height:1px;background:var(--border2)}
+.hero-h1{
+  font-family:var(--display);line-height:.88;letter-spacing:-.02em;
+  text-transform:uppercase;font-weight:400;
+}
+.hero-h1 .line{
+  display:block;font-size:clamp(52px,9.2vw,148px);
+  white-space:nowrap;
+}
+.hero-h1 .filled{color:var(--text)}
+.hero-h1 .outline{
+  color:transparent;-webkit-text-stroke:1.2px rgba(233,238,240,0.9);
+  text-stroke:1.2px rgba(233,238,240,0.9);
+}
+.hero-sub{
+  margin-top:28px;max-width:560px;
+  font-size:15px;color:var(--muted2);line-height:1.7;
+}
+.hero-sub strong{color:var(--text);font-weight:500}
+.hero-actions{margin-top:32px;display:flex;gap:12px;flex-wrap:wrap}
+.btn{
+  display:inline-flex;align-items:center;gap:10px;
+  padding:13px 20px;border-radius:999px;
+  font-family:var(--mono);font-size:12px;letter-spacing:.06em;
+  transition:.22s cubic-bezier(.16,1,.3,1);
+  border:1px solid transparent;
+}
+.btn-primary{background:var(--text);color:var(--bg)}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 10px 30px rgba(255,255,255,.15)}
+.btn-ghost{border-color:var(--border2);color:var(--text);background:rgba(22,30,34,.6)}
+.btn-ghost:hover{border-color:var(--muted);background:var(--surface)}
+.hero-visual{
+  position:relative;min-height:560px;
+  display:flex;align-items:center;justify-content:center;
+}
+.orbit-wrap{position:relative;width:100%;aspect-ratio:1/1;max-width:520px}
+.orbit{
+  position:absolute;inset:0;border:1px solid rgba(255,255,255,.06);
+  border-radius:50%;
+}
+.orbit::after{
+  content:"";position:absolute;left:50%;top:-3px;width:6px;height:6px;
+  background:var(--accent);border-radius:50%;box-shadow:0 0 12px var(--accent);
+  transform:translateX(-50%);
+}
+.orbit-1{transform:scale(.62) rotate(-12deg)}
+.orbit-2{transform:scale(.84) rotate(8deg);border-style:dashed;border-color:rgba(255,255,255,.12)}
+.orbit-3{transform:scale(1) rotate(-4deg)}
+.orbit-core{
+  position:absolute;left:50%;top:50%;width:44%;aspect-ratio:1;
+  transform:translate(-50%,-50%);
+  background:radial-gradient(120% 120% at 30% 30%, #1E2A31 0%, #0D1418 60%, #080B0D 100%);
+  border:1px solid var(--border2);border-radius:50%;
+  display:grid;place-items:center;overflow:hidden;
+}
+.core-grid{
+  position:absolute;inset:-20%;background:
+    linear-gradient(rgba(154,219,176,.12) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(154,219,176,.08) 1px, transparent 1px);
+  background-size:22px 22px;opacity:.5;
+}
+.core-label{
+  position:relative;z-index:1;font-family:var(--mono);font-size:9px;
+  letter-spacing:.2em;color:var(--accent);text-align:center;line-height:1.4;
+}
+/* stats strip */
+.stats-strip{
+  position:relative;z-index:1;
+  max-width:1440px;margin:0 auto;padding:0 28px 28px;
+}
+.stats-inner{
+  border-top:1px solid var(--border);border-bottom:1px solid var(--border);
+  display:grid;grid-template-columns:repeat(4,1fr);
+  font-family:var(--mono);
+}
+.stat{padding:18px 20px;border-right:1px solid var(--border);display:flex;flex-direction:column;gap:6px}
+.stat:last-child{border-right:none}
+.stat-label{font-size:9px;letter-spacing:.16em;color:var(--muted);text-transform:uppercase}
+.stat-value{font-size:13px;color:var(--text);display:flex;align-items:baseline;gap:8px}
+.stat-value b{font-size:20px;font-weight:500;letter-spacing:-.02em}
+.stat-sub{font-size:10px;color:var(--muted)}
+/* sections */
+.section{position:relative;z-index:1;max-width:1440px;margin:0 auto;padding:96px 28px}
+.section-head{margin-bottom:56px;display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:end}
+.kicker{font-family:var(--mono);font-size:10px;letter-spacing:.18em;color:var(--accent);text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.kicker::before{content:"";width:6px;height:6px;background:var(--accent);border-radius:50%;box-shadow:0 0 8px var(--accent)}
+.h2{
+  font-family:var(--display);font-size:clamp(36px,6vw,84px);line-height:.9;
+  text-transform:uppercase;letter-spacing:-.02em;
+}
+.h2 .outline{color:transparent;-webkit-text-stroke:1px var(--text)}
+.body-muted{color:var(--muted2);font-size:15px;line-height:1.7;max-width:48ch}
+/* filter */
+.filter-bar{
+  display:flex;flex-wrap:wrap;gap:8px;margin-bottom:36px;
+  border:1px solid var(--border);background:var(--surface);
+  padding:6px;border-radius:999px;width:fit-content;
+}
+.filter-btn{
+  font-family:var(--mono);font-size:11px;letter-spacing:.06em;
+  padding:8px 14px;border-radius:999px;border:1px solid transparent;
+  color:var(--muted);transition:.2s;
+}
+.filter-btn.active{background:var(--text);color:var(--bg);border-color:var(--text)}
+.filter-btn:hover{color:var(--text)}
+/* project long form like reference */
+.project-long{
+  border-top:1px solid var(--border);padding:64px 0 96px;
+  display:grid;grid-template-columns:1.1fr .9fr;gap:48px;
+  position:relative;
+}
+.project-long:first-of-type{border-top:none}
+.project-meta-top{
+  display:flex;gap:16px;flex-wrap:wrap;margin-bottom:18px;
+  font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--muted);
+}
+.meta-pill{border:1px solid var(--border);padding:4px 8px;border-radius:4px;background:var(--surface)}
+.project-title{
+  font-family:var(--display);font-size:clamp(32px,4.8vw,66px);
+  line-height:.88;text-transform:uppercase;letter-spacing:-.02em;
+}
+.project-title .outline{color:transparent;-webkit-text-stroke:1px rgba(233,238,240,.8)}
+.project-desc{margin-top:18px;font-size:14.5px;color:var(--muted2);line-height:1.7;max-width:52ch}
+.project-specs{
+  margin-top:28px;display:grid;grid-template-columns:1fr 1fr;gap:16px;
+  border:1px solid var(--border);background:var(--surface);border-radius:12px;padding:16px;
+}
+.spec{font-family:var(--mono)}
+.spec-label{font-size:9px;letter-spacing:.16em;color:var(--muted);text-transform:uppercase;margin-bottom:6px}
+.spec-value{font-size:12px;color:var(--text);line-height:1.5}
+.spec-bar{height:4px;background:var(--surface3);border-radius:999px;margin-top:8px;overflow:hidden}
+.spec-bar-fill{height:100%;background:var(--accent);border-radius:999px}
+.project-visual{
+  position:relative;border:1px solid var(--border);background:var(--surface);
+  border-radius:16px;overflow:hidden;min-height:380px;
+}
+.visual-header{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:12px 14px;border-bottom:1px solid var(--border);
+  font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--muted);
+}
+.dots{display:flex;gap:6px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--border2)}
+.visual-body{position:relative;padding:18px;background:radial-gradient(120% 120% at 50% 0%, rgba(154,219,176,.06), transparent 60%), var(--surface)}
+.tech-grid{
+  display:grid;grid-template-columns:repeat(12,1fr);grid-template-rows:repeat(8,28px);
+  gap:1px;background:var(--border);border:1px solid var(--border);border-radius:8px;overflow:hidden;
+}
+.tech-cell{background:var(--surface2);position:relative}
+.tech-cell.active{background:rgba(154,219,176,.14)}
+.tech-cell.active::after{content:"";position:absolute;inset:4px;border:1px solid var(--accent);border-radius:2px;opacity:.6}
+.cad-placeholder{
+  margin-top:16px;border:1px dashed var(--border2);border-radius:10px;
+  padding:28px;display:grid;place-items:center;gap:12px;text-align:center;
+  background:repeating-linear-gradient(45deg, transparent, transparent 8px, rgba(255,255,255,.02) 8px, rgba(255,255,255,.02) 16px);
+}
+.cad-placeholder i{opacity:.6}
+.cad-label{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.12em}
+.project-details-grid{
+  grid-column:1 / -1;
+  display:grid;grid-template-columns:repeat(4,1fr);gap:18px;
+  margin-top:8px;
+}
+.detail-card{border-top:1px solid var(--border);padding-top:16px}
+.detail-card h4{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.detail-card p{font-size:12.5px;line-height:1.6;color:var(--muted2)}
+.detail-card strong{color:var(--text);font-weight:500}
+/* project cards grid */
+.cards-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:84px}
+.p-card{
+  position:relative;border:1px solid var(--border);background:var(--surface);
+  border-radius:16px;overflow:hidden;transition:.3s cubic-bezier(.16,1,.3,1);
+}
+.p-card:hover{transform:translateY(-4px);border-color:var(--border2);box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.p-card-thumb{aspect-ratio:16/10;background:var(--surface2);position:relative;overflow:hidden;border-bottom:1px solid var(--border)}
+.thumb-grid{position:absolute;inset:0;display:grid;grid-template-columns:repeat(10,1fr);grid-template-rows:repeat(6,1fr);gap:1px;padding:12px}
+.thumb-cell{background:rgba(255,255,255,.03);border-radius:2px}
+.thumb-cell.hl{background:var(--accent-dim);border:1px solid rgba(154,219,176,.3)}
+.p-card-body{padding:16px 16px 14px}
+.p-card-title{font-family:var(--display);font-size:20px;text-transform:uppercase;letter-spacing:-.01em;line-height:.95}
+.p-card-cat{font-family:var(--mono);font-size:9px;letter-spacing:.16em;color:var(--muted);text-transform:uppercase;margin-top:6px}
+.p-card-foot{margin-top:12px;display:flex;justify-content:space-between;align-items:center;font-family:var(--mono);font-size:10px;color:var(--muted)}
+.status-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);display:inline-block;margin-right:6px;box-shadow:0 0 6px var(--accent)}
+/* skills */
+.skills-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:16px;overflow:hidden}
+.skill-col{background:var(--surface);padding:22px 20px}
+.skill-col h4{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--text);margin-bottom:18px;display:flex;align-items:center;gap:8px}
+.skill-col h4::before{content:"";width:16px;height:1px;background:var(--accent)}
+.skill-list{display:flex;flex-direction:column;gap:12px}
+.skill-item{display:flex;justify-content:space-between;gap:12px;font-size:13px;color:var(--muted2);border-bottom:1px dashed var(--border);padding-bottom:10px}
+.skill-item:last-child{border-bottom:none}
+.skill-item b{color:var(--text);font-weight:500;font-family:var(--mono);font-size:11px}
+/* journal */
+.journal-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.j-card{border:1px solid var(--border);background:var(--surface);border-radius:14px;overflow:hidden;transition:.25s}
+.j-card:hover{border-color:var(--border2);transform:translateY(-2px)}
+.j-thumb{aspect-ratio:16/9;background:var(--surface2);position:relative;overflow:hidden}
+.j-thumb::after{content:"";position:absolute;inset:0;background:linear-gradient(to top, var(--surface), transparent)}
+.j-body{padding:16px}
+.j-meta{font-family:var(--mono);font-size:9px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;margin-bottom:8px}
+.j-title{font-family:var(--display);font-size:18px;line-height:1;text-transform:uppercase}
+.j-excerpt{margin-top:8px;font-size:12.5px;color:var(--muted2);line-height:1.6}
+/* about */
+.about-grid{display:grid;grid-template-columns:.9fr 1.1fr;gap:48px;align-items:start}
+.about-card{border:1px solid var(--border);background:var(--surface);border-radius:16px;padding:22px}
+.about-card h3{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:14px}
+.about-list{display:flex;flex-direction:column;gap:10px;font-size:13px;color:var(--muted2)}
+.about-list div{display:flex;justify-content:space-between;gap:16px;border-bottom:1px solid var(--border);padding-bottom:10px}
+.about-list b{color:var(--text);font-weight:500}
+/* contact */
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.contact-box{border:1px solid var(--border);background:var(--surface);border-radius:16px;padding:24px}
+.contact-box h3{font-family:var(--display);font-size:28px;text-transform:uppercase;line-height:.9;margin-bottom:12px}
+.contact-links{display:flex;flex-direction:column;gap:10px;margin-top:18px}
+.contact-link{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border:1px solid var(--border);border-radius:10px;background:var(--surface2);transition:.2s;font-family:var(--mono);font-size:12px}
+.contact-link:hover{border-color:var(--accent);background:rgba(154,219,176,.06)}
+/* modal */
+.modal{position:fixed;inset:0;z-index:100;display:none}
+.modal.open{display:block}
+.modal-backdrop{position:absolute;inset:0;background:rgba(3,6,7,.82);backdrop-filter:blur(12px)}
+.modal-panel{
+  position:relative;max-width:1080px;margin:4vh auto;
+  background:var(--bg);border:1px solid var(--border2);border-radius:20px;
+  max-height:92vh;overflow:auto;overscroll-behavior:contain;
+}
+.modal-header{position:sticky;top:0;z-index:2;background:rgba(8,11,13,.9);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:16px 22px;display:flex;justify-content:space-between;align-items:center}
+.modal-close{width:32px;height:32px;border:1px solid var(--border);border-radius:8px;display:grid;place-items:center}
+/* reveal */
+.reveal{opacity:0;transform:translateY(18px);transition:.7s cubic-bezier(.16,1,.3,1)}
+.reveal.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){
+  .reveal{opacity:1;transform:none;transition:none}
+  #particle-layer{display:none}
+}
+/* responsive */
+@media (max-width:1100px){
+  .hero{grid-template-columns:1fr;min-height:auto}
+  .hero-visual{min-height:420px;order:-1}
+  .section-head{grid-template-columns:1fr}
+  .project-long{grid-template-columns:1fr}
+  .project-details-grid{grid-template-columns:1fr 1fr}
+  .cards-grid{grid-template-columns:1fr 1fr}
+  .skills-grid{grid-template-columns:1fr 1fr}
+  .journal-grid{grid-template-columns:1fr 1fr}
+  .about-grid{grid-template-columns:1fr}
+  .contact-grid{grid-template-columns:1fr}
+  .stats-inner{grid-template-columns:1fr 1fr}
+}
+@media (max-width:680px){
+  .header-inner{padding:12px 16px}
+  .nav{display:none}
+  .mobile-toggle{display:grid}
+  .nav.open{display:flex;position:absolute;top:58px;left:12px;right:12px;flex-direction:column;align-items:stretch;background:var(--surface);border-radius:16px;padding:8px;z-index:60}
+  .section{padding:64px 16px}
+  .hero{padding:36px 16px}
+  .stats-strip{padding:0 16px 16px}
+  .stats-inner{grid-template-columns:1fr 1fr}
+  .cards-grid{grid-template-columns:1fr}
+  .skills-grid{grid-template-columns:1fr}
+  .journal-grid{grid-template-columns:1fr}
+  .project-details-grid{grid-template-columns:1fr}
+  .project-specs{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div id="particle-layer">
+  <canvas id="stream-canvas"></canvas>
+  <div id="grid-overlay"></div>
+  <svg width="0" height="0" style="position:absolute">
+    <path id="stream-path" d="M -100 120 C 300 180, 400 560, 820 620 S 1280 1040, 1620 960 S 2100 1580, 2400 1480 S 2600 2280, 3000 2320 S 3400 3000, 3800 3120" />
+  </svg>
+</div>
+
+<header class="header">
+  <div class="header-inner">
+    <a class="logo" href="#top"><span class="logo-mark">N</span><span>neethan.work</span><span style="color:var(--muted)"> • aerospace</span></a>
+    <nav class="nav" id="mainNav">
+      <a href="#work" class="active">Projects</a>
+      <a href="#skills">Skills</a>
+      <a href="#journal">Journal</a>
+      <a href="#about">About</a>
+      <a href="#contact">Contact</a>
+    </nav>
+    <div class="header-actions">
+      <span class="kbd"><span>⌘</span> K</span>
+      <button class="mobile-toggle" id="mobToggle" aria-label="Menu"><i data-lucide="menu" style="width:16px;height:16px"></i></button>
+    </div>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero">
+    <div class="hero-copy">
+      <div class="eyebrow">Pearson HND Aerospace Engineering — Systems for Extreme Environments</div>
+      <h1 class="hero-h1">
+        <span class="line filled">Engineering</span>
+        <span class="line outline">The Next</span>
+        <span class="line filled">Frontier.</span>
+      </h1>
+      <div class="hero-sub">
+        <p><strong>Aerospace Engineering | Space Systems | Computational Analysis | Planetary Robotics</strong></p>
+        <p style="margin-top:14px">I explore the intersection of aerospace engineering, computational analysis, mechanical design, and space technology—turning engineering concepts into systems that can be designed, analysed, and tested. Focused on spacecraft research lab precision, not sci-fi decoration.</p>
+      </div>
+      <div class="hero-actions">
+        <a href="#work" class="btn btn-primary"><i data-lucide="arrow-down-right" style="width:14px;height:14px"></i> Explore Projects</a>
+        <a href="#" id="cvBtn" class="btn btn-ghost"><i data-lucide="download" style="width:14px;height:14px"></i> Download CV</a>
+      </div>
+      <div style="margin-top:36px;display:flex;gap:10px;flex-wrap:wrap;font-family:var(--mono);font-size:10px;color:var(--muted)">
+        <span style="border:1px solid var(--border);padding:6px 10px;border-radius:999px">UK • Remote Capable</span>
+        <span style="border:1px solid var(--border);padding:6px 10px;border-radius:999px">SOLIDWORKS • ANSYS • CFD • FEA</span>
+        <span style="border:1px solid var(--border);padding:6px 10px;border-radius:999px;background:var(--accent-dim);color:var(--accent);border-color:rgba(154,219,176,.3)">Available for industrial placement from Summer 2027</span>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="orbit-wrap">
+        <div class="orbit orbit-1"></div>
+        <div class="orbit orbit-2"></div>
+        <div class="orbit orbit-3"></div>
+        <div class="orbit-core">
+          <div class="core-grid"></div>
+          <div class="core-label">HND<br/>AEROSPACE<br/>SYS-01<br/>—<br/>2.0×2.0×2.0 FT<br/>CHASSIS ENVELOPE</div>
+        </div>
+        <div style="position:absolute;left:4%;top:18%;font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:.14em">ALT 0.0m // TERRAIN: REGOLITH</div>
+        <div style="position:absolute;right:2%;bottom:12%;font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:.14em">TELEMETRY NOMINAL</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="stats-strip">
+    <div class="stats-inner">
+      <div class="stat"><span class="stat-label">Program</span><span class="stat-value"><b>HND</b> Aerospace Eng.</span><span class="stat-sub">Pearson — In progress</span></div>
+      <div class="stat"><span class="stat-label">Focus</span><span class="stat-value"><b>82%</b> Systems & Simulation</span><span class="stat-sub">CAD • FEA • CFD • Prototyping</span></div>
+      <div class="stat"><span class="stat-label">Systems Built</span><span class="stat-value"><b id="statProjects">5</b> Flight / Ground Concepts</span><span class="stat-sub">End-to-end case studies</span></div>
+      <div class="stat"><span class="stat-label">Location</span><span class="stat-value"><b>UK</b> • Open to placement</span><span class="stat-sub" id="statLoc">Editable via site-config.js</span></div>
+    </div>
+  </div>
+
+  <section class="section" id="work">
+    <div class="section-head">
+      <div>
+        <div class="kicker">Selected Work</div>
+        <h2 class="h2">Five Systems,<br/><span class="outline">End to End</span></h2>
+      </div>
+      <p class="body-muted">Each project shipped to hardware or tested against real analysis. Here’s the problem, requirements, what I built, what happened, and what I’d do differently next time. All data is editable — no invented results.</p>
+    </div>
+
+    <div class="filter-bar" id="filterBar">
+      <button class="filter-btn active" data-filter="all">All Systems</button>
+      <button class="filter-btn" data-filter="robotics">Robotics</button>
+      <button class="filter-btn" data-filter="structures">Structures</button>
+      <button class="filter-btn" data-filter="aerodynamics">Aerodynamics</button>
+      <button class="filter-btn" data-filter="space">Space Systems</button>
+    </div>
+
+    <div class="cards-grid" id="cardsGrid"></div>
+
+    <div id="longProjects"></div>
+  </section>
+
+  <section class="section" id="skills">
+    <div class="section-head">
+      <div>
+        <div class="kicker">Technical Stack</div>
+        <h2 class="h2">Tools That<br/><span class="outline">Fly</span></h2>
+      </div>
+      <p class="body-muted">No proficiency percentages. Only tools I’ve used on real projects with verifiable outputs. Replace placeholders with your genuine screenshots and reports.</p>
+    </div>
+    <div class="skills-grid reveal">
+      <div class="skill-col">
+        <h4>CAD & Mechanical</h4>
+        <div class="skill-list">
+          <div class="skill-item"><span>SOLIDWORKS — Parts, Assemblies, Drawings</span><b>Daily</b></div>
+          <div class="skill-item"><span>Chassis design • 2×2×2 ft envelope</span><b>Hexapod</b></div>
+          <div class="skill-item"><span>Tolerancing, DFM, Fasteners</span><b>Applied</b></div>
+          <div class="skill-item"><span>Engineering drawings • GD&T</span><b>Placeholder</b></div>
+        </div>
+      </div>
+      <div class="skill-col">
+        <h4>Simulation</h4>
+        <div class="skill-list">
+          <div class="skill-item"><span>ANSYS Mechanical — Static Structural</span><b>FEA</b></div>
+          <div class="skill-item"><span>ANSYS Fluent — Subsonic, Airfoil</span><b>CFD</b></div>
+          <div class="skill-item"><span>Mesh, BCs, Convergence studies</span><b>Learning</b></div>
+          <div class="skill-item"><span>Results: 3.2882mm, 439.08MPa (prelim.)</span><b>Labelled</b></div>
+        </div>
+      </div>
+      <div class="skill-col">
+        <h4>Aerospace Systems</h4>
+        <div class="skill-list">
+          <div class="skill-item"><span>Planetary robotics • Leg-wheel mobility</span><b>Concept→Test</b></div>
+          <div class="skill-item"><span>Propulsion concepts, Composites intro</span><b>HND Units</b></div>
+          <div class="skill-item"><span>Wind tunnel • 12×12×24" test section</span><b>Built</b></div>
+          <div class="skill-item"><span>CubeSat • Radio sky-intensity mapping</span><b>Proposed</b></div>
+        </div>
+      </div>
+      <div class="skill-col">
+        <h4>Visual & Data</h4>
+        <div class="skill-list">
+          <div class="skill-item"><span>Blender — Technical visualisation</span><b>Renders</b></div>
+          <div class="skill-item"><span>Python — Data, Plots, Post-processing</span><b>Analysis</b></div>
+          <div class="skill-item"><span>Git, GitHub Pages, Docs</span><b>Deployment</b></div>
+          <div class="skill-item"><span>Telemetry UI, Dashboarding</span><b>Custom</b></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="journal">
+    <div class="section-head">
+      <div>
+        <div class="kicker">Engineering Journal</div>
+        <h2 class="h2">Build Log &<br/><span class="outline">Lessons</span></h2>
+      </div>
+      <p class="body-muted">Short technical notes. Each article links to projects and includes real images. Add new entries in journal.json — no CMS needed.</p>
+    </div>
+    <div class="journal-grid" id="journalGrid"></div>
+  </section>
+
+  <section class="section" id="about">
+    <div class="section-head">
+      <div>
+        <div class="kicker">About Me</div>
+        <h2 class="h2">Neethan,<br/><span class="outline">Aerospace Student</span></h2>
+      </div>
+      <p class="body-muted">I’m completing a Pearson HND in Aerospace Engineering, focused on systems that can be designed, analysed, and tested. I’m interested in spacecraft, planetary robotics, propulsion, CAD, CFD, FEA, aerospace manufacturing, and engineering innovation. Never inventing qualifications — only documenting what I’ve built and measured.</p>
+    </div>
+    <div class="about-grid">
+      <div class="about-card reveal">
+        <h3>Biography — Editable in site-config.js</h3>
+        <p style="font-size:13.5px;color:var(--muted2);line-height:1.7">I’m an aerospace engineering student based in the UK, exploring the intersection of computational analysis, mechanical design, and space technology. My work centres on planetary mobility, structural analysis, and aerodynamic testing. I prefer to show calculations, CAD, and genuine simulation screenshots over renders. Currently seeking an industrial placement from Summer 2027 to apply systems engineering in a spacecraft or advanced manufacturing environment.</p>
+        <div style="margin-top:18px;display:flex;gap:8px;flex-wrap:wrap">
+          <span class="meta-pill">Planetary Robotics</span><span class="meta-pill">CFD • FEA</span><span class="meta-pill">CAD • DFM</span><span class="meta-pill">Space Systems</span>
+        </div>
+      </div>
+      <div class="about-card reveal">
+        <h3>Education & Focus</h3>
+        <div class="about-list">
+          <div><span>Pearson HND Aerospace Engineering</span><b>In Progress</b></div>
+          <div><span>Core Units: Aerodynamics, Propulsion, Materials, CAD</span><b>HND</b></div>
+          <div><span>Tools: SOLIDWORKS, ANSYS Mechanical/Fluent, Blender</span><b>Applied</b></div>
+          <div><span>Interests: Spacecraft, Planetary Robotics, Manufacturing</span><b>Career Goal: Space Systems Engineer</b></div>
+          <div><span>Location</span><b id="aboutLoc">United Kingdom (editable)</b></div>
+        </div>
+        <div style="margin-top:16px;padding:12px;border-radius:10px;background:var(--accent-dim);border:1px solid rgba(154,219,176,.2);font-family:var(--mono);font-size:11px;color:var(--accent)">Note: All qualifications, grades, and achievements must be replaced with your verified data. No awards or employment invented.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="contact">
+    <div class="section-head">
+      <div>
+        <div class="kicker">Contact & CV</div>
+        <h2 class="h2">Let’s Build<br/><span class="outline">Something Flight-Worthy</span></h2>
+      </div>
+      <p class="body-muted">Editable via site-config.js. Use a regular email link — no fake contact form. Replace CV file in assets/ and update the path.</p>
+    </div>
+    <div class="contact-grid">
+      <div class="contact-box reveal">
+        <h3>Get in Touch</h3>
+        <p style="font-size:13px;color:var(--muted2)">For placements, collaborations, or technical discussion. I respond fastest via email.</p>
+        <div class="contact-links" id="contactLinks"></div>
+      </div>
+      <div class="contact-box reveal">
+        <h3>Maintenance & Deployment</h3>
+        <div style="font-family:var(--mono);font-size:11px;color:var(--muted2);line-height:1.7">
+          <p><b style="color:var(--text)">Folder structure (for GitHub Pages):</b><br/>
+          /index.html<br/>
+          /site-config.js<br/>
+          /projects.js (or projects.json)<br/>
+          /journal.js<br/>
+          /assets/cv.pdf, images/, drawings/</p>
+          <p style="margin-top:12px"><b style="color:var(--text)">Add a 6th project:</b> Open projects.js, duplicate an entry, change id, title, category, status, and images. Cards, filters, and detail pages update automatically. No redesign needed.</p>
+          <p style="margin-top:12px"><b style="color:var(--text)">Local preview:</b> python -m http.server 8000 or VS Code Live Server.</p>
+          <p style="margin-top:12px"><b style="color:var(--text)">Deploy:</b> Push to GitHub repo → Settings → Pages → Deploy from main branch /root. No API keys, no backend.</p>
+        </div>
+        <div style="margin-top:16px;display:flex;gap:8px">
+          <a class="btn btn-primary" href="#" id="cvBtn2"><i data-lucide="file-text" style="width:14px;height:14px"></i> Download CV (assets/)</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer style="position:relative;z-index:1;max-width:1440px;margin:0 auto;padding:32px 28px;border-top:1px solid var(--border);display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.12em">
+    <span>© <span id="year"></span> NEETHAN — HND AEROSPACE • BUILT FOR GITHUB PAGES</span>
+    <span>TELEMETRY: NOMINAL • NO TRACKERS • REDUCED-MOTION SUPPORTED</span>
+  </footer>
+</main>
+
+<div class="modal" id="projectModal" aria-hidden="true">
+  <div class="modal-backdrop" id="modalBackdrop"></div>
+  <div class="modal-panel">
+    <div class="modal-header">
+      <div style="display:flex;align-items:center;gap:12px"><span id="modalKicker" style="font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--accent)"></span><span id="modalTitle" style="font-family:var(--display);font-size:22px;text-transform:uppercase"></span></div>
+      <button class="modal-close" id="modalClose"><i data-lucide="x" style="width:14px;height:14px"></i></button>
+    </div>
+    <div id="modalBody" style="padding:24px"></div>
+  </div>
+</div>
+
+<script>
+// ---------- SITE CONFIG - would be site-config.js ----------
+const SITE_CONFIG = {
+  name: "Neethan",
+  role: "Aerospace Engineering Student",
+  location: "United Kingdom",
+  email: "neethan.email@example.com", // replace
+  linkedin: "https://linkedin.com/in/yourprofile",
+  github: "https://github.com/yourprofile",
+  cvPath: "assets/Neethan_CV.pdf", // replace file in assets/
+  availableFrom: "Summer 2027"
+};
+// ---------- PROJECTS - would be projects.js / projects.json ----------
+const PROJECTS = [
+  {
+    id:"hexapod",
+    num:"01",
+    title:"Hybrid Hexapod Martian Rover",
+    category:"robotics",
+    tags:["ROBOTICS","PLANETARY","SOLIDWORKS","PROTOTYPE"],
+    status:"Concept + Partial Hardware",
+    date:"2025",
+    contribution:"Chassis, leg-wheel mobility, CAD, calculations",
+    software:"SOLIDWORKS, Python, Arduino",
+    excerpt:"Six-legged mobility with permanently mounted wheels at each leg end for regolith traversal. 2×2×2 ft chassis envelope.",
+    objectives:"Design a planetary rover that combines legged articulation for obstacle clearance with wheel rolling for energy-efficient traverse. Envelope 2×2×2 ft.",
+    methodology:"Requirements → concept sketches → kinematic study → CAD assemblies → mobility mechanism prototyping → sensor integration plan → fabrication plan.",
+    specs:{chassis:"2×2×2 ft target", mobility:"6× leg + wheel tip", terrain:"Regolith, 15° slope, 150mm rock", mass:"<25kg conceptual"},
+    results:"CAD assembly complete, leg prototype tested for 120° sweep. Wheel tip integration conceptual — not yet tested. Control architecture drafted.",
+    lessons:"Leg-wheel handoff needs clutch mechanism. Distinguish conceptual vs tested hardware clearly.",
+    limitations:"No thermal/vacuum testing. Power budget preliminary.",
+    images:["hexapod-cad","leg-mech"],
+    color:"var(--accent)"
+  },
+  {
+    id:"fea",
+    num:"02",
+    title:"Aerospace Compressor Blade FEA",
+    category:"structures",
+    tags:["FEA","ANSYS","STRUCTURES","VALIDATION"],
+    status:"Preliminary Results — Pending Validation",
+    date:"2025",
+    contribution:"Geometry, mesh, BCs, post-processing",
+    software:"ANSYS Mechanical, SOLIDWORKS",
+    excerpt:"Static structural analysis of compressor blade. Preliminary: 3.2882 mm deformation, 439.08 MPa von Mises. No safety claims.",
+    objectives:"Perform structural analysis of aerospace compressor blade under centrifugal and aerodynamic loading.",
+    methodology:"Geometry import → material assignment → mesh (tetrahedral, convergence check) → boundary conditions (root fixed, rotational velocity) → solve → results extraction.",
+    specs:{deformation:"3.2882 mm max (preliminary)", stress:"439.08 MPa von Mises max (preliminary)", mesh:"~180k elements, convergence pending", material:"[Replace with actual alloy]"},
+    results:"Max total deformation 3.2882 mm at tip, max equivalent stress 439.08 MPa at root fillet. Results labelled preliminary pending mesh convergence and experimental validation.",
+    lessons:"Stress concentration at fillet needs refinement. Convergence study required before conclusions.",
+    limitations:"Preliminary — not validated. Do not make unsupported safety claims. Replace placeholder material properties with verified data.",
+    images:["fea-mesh","fea-stress"],
+    color:"var(--yellow)"
+  },
+  {
+    id:"windtunnel",
+    num:"03",
+    title:"Subsonic Wind Tunnel",
+    category:"aerodynamics",
+    tags:["AERODYNAMICS","FABRICATION","TESTING"],
+    status:"Design + Build",
+    date:"2024-2025",
+    contribution:"Test-section design, fabrication, instrumentation plan",
+    software:"SOLIDWORKS, Hand calcs",
+    excerpt:"Small-scale wind tunnel test-section 12×12×24 inches for low-speed aerodynamic testing.",
+    objectives:"Design and fabricate a 12×12×24 inch test-section for educational subsonic testing.",
+    methodology:"Requirements → contraction ratio → diffuser angle → material selection (acrylic/plywood) → fabrication → instrumentation (pitot, manometer) → test methodology.",
+    specs:{testSection:"12×12×24 in", speed:"<30 m/s nominal", materials:"Acrylic, plywood, aluminium", instrumentation:"Pitot-static, hot-wire placeholder"},
+    results:"Test-section fabricated, flow uniformity check pending. SolidWorks drawings placeholder — replace with genuine screenshots.",
+    lessons:"Sealing and contraction smoothness critical for flow quality.",
+    limitations:"No calibrated flow results yet. Add genuine test data when available.",
+    images:["tunnel-cad","tunnel-build"],
+    color:"var(--blue)"
+  },
+  {
+    id:"airfoil",
+    num:"04",
+    title:"Airfoil CFD",
+    category:"aerodynamics",
+    tags:["CFD","FLUENT","AERODYNAMICS"],
+    status:"In Progress — Results Placeholder",
+    date:"2025",
+    contribution:"Domain, mesh, setup, post-processing",
+    software:"ANSYS Fluent, SOLIDWORKS",
+    excerpt:"Aerodynamic modelling using ANSYS Fluent. Spaces for geometry, mesh, velocity/pressure contours, lift/drag — no invented results.",
+    objectives:"Model subsonic flow over airfoil, extract lift/drag, analyse flow separation.",
+    methodology:"Airfoil geometry (NACA XXXX) → computational domain → structured mesh → BCs (velocity inlet, pressure outlet) → turbulence model → convergence monitoring → post-processing.",
+    specs:{airfoil:"[Insert NACA profile]", aoa:"Sweep placeholder", re:"[Insert Reynolds]", mesh:"[Insert cell count]"},
+    results:"Velocity contours, pressure contours, streamlines placeholders. Never invent Cl/Cd. Replace with genuine Fluent screenshots when available.",
+    lessons:"Mesh quality near leading edge dominates convergence. Y+ monitoring required.",
+    limitations:"No verified results yet. Conclusions pending.",
+    images:["cfd-mesh","cfd-contour"],
+    color:"var(--red)"
+  },
+  {
+    id:"cubesat",
+    num:"05",
+    title:"CubeSat Radio Sky-Intensity Mapping",
+    category:"space",
+    tags:["SPACE SYSTEMS","CONCEPT","MISSION DESIGN"],
+    status:"Proposed Concept",
+    date:"2025",
+    contribution:"Mission objectives, payload, architecture, constraints",
+    software:"STK placeholder, Python, Docs",
+    excerpt:"Proposed 3U CubeSat for low-frequency radio sky-intensity mapping. Conceptual work — clearly labelled.",
+    objectives:"Propose a CubeSat mission for radio sky-intensity mapping, define payload, power, comms, orbit.",
+    methodology:"Mission objectives → payload (dipole antenna) → satellite bus → power budget → link budget → orbit selection → risk analysis.",
+    specs:{form:"3U CubeSat concept", payload:"VHF dipole, SDR", orbit:"LEO ~500km placeholder", power:"~10W avg conceptual"},
+    results:"Conceptual architecture complete. Power and link budgets preliminary. No hardware built.",
+    lessons:"RF interference and deployment mechanism are key risks.",
+    limitations:"Clearly conceptual. No flight hardware, no launch manifest.",
+    images:["cubesat-bus","mission-orbit"],
+    color:"var(--silver)"
+  },
+  // Example 6th project — duplicate to add new:
+  // {
+  //   id:"propulsion",
+  //   num:"06",
+  //   title:"Cold Gas Thruster Test Stand",
+  //   category:"space",
+  //   tags:["PROPULSION","TESTING"],
+  //   status:"Proposed",
+  //   date:"2026",
+  //   ...
+  // }
+];
+
+// ---------- JOURNAL - would be journal.js ----------
+const JOURNAL = [
+  {id:"j1", date:"2025-08-12", title:"Why leg-wheel needs a clutch, not just a wheel on a leg", excerpt:"The tip wheel spins when leg lifts. Without decoupling, you waste energy and scuff regolith. Sketches for a passive clutch.", cover:"hexapod", project:"hexapod"},
+  {id:"j2", date:"2025-07-03", title:"FEA: When 439 MPa doesn't mean failure", excerpt:"Preliminary stress at fillet is mesh-dependent. Convergence study shows stress keeps rising with refinement. Label as preliminary.", cover:"fea", project:"fea"},
+  {id:"j3", date:"2025-06-18", title:"Wind tunnel sealing matters more than fan power", excerpt:"Acrylic joints leaked, contraction separation. Tape is not engineering. Rebuilt with gaskets.", cover:"tunnel", project:"windtunnel"},
+];
+
+// ---------- RENDER FUNCTIONS ----------
+const cardsGrid = document.getElementById('cardsGrid');
+const longProjects = document.getElementById('longProjects');
+const journalGrid = document.getElementById('journalGrid');
+const contactLinks = document.getElementById('contactLinks');
+
+function thumbCells(hlCount=14){
+  let html=''; for(let i=0;i<60;i++){ const hl = Math.random()<0.18 ? ' hl' : ''; html+=`<div class="thumb-cell${hl}"></div>`}
+  return html;
+}
+
+function renderCards(filter='all'){
+  cardsGrid.innerHTML='';
+  PROJECTS.filter(p=> filter==='all' || p.category===filter).forEach(p=>{
+    const el=document.createElement('div');
+    el.className='p-card reveal';
+    el.innerHTML=`
+      <div class="p-card-thumb"><div class="thumb-grid">${thumbCells()}</div>
+        <div style="position:absolute;left:12px;bottom:10px;display:flex;gap:6px">
+          ${p.tags.slice(0,2).map(t=>`<span style="font-family:var(--mono);font-size:9px;padding:4px 6px;border-radius:4px;background:rgba(0,0,0,.6);border:1px solid rgba(255,255,255,.12);color:var(--muted2)">${t}</span>`).join('')}
+        </div>
+        <div style="position:absolute;right:12px;top:10px;font-family:var(--mono);font-size:9px;color:var(--muted)">${p.num} / 05</div>
+      </div>
+      <div class="p-card-body">
+        <div class="p-card-title">${p.title}</div>
+        <div class="p-card-cat">${p.category} • ${p.status}</div>
+        <div class="p-card-foot"><span><span class="status-dot"></span>${p.date}</span><span style="display:flex;align-items:center;gap:4px">View <i data-lucide="arrow-up-right" style="width:12px;height:12px"></i></span></div>
+      </div>`;
+    el.addEventListener('click',()=>openModal(p.id));
+    cardsGrid.appendChild(el);
+  });
+  lucide.createIcons();
+  observe();
+}
+
+function renderLong(){
+  longProjects.innerHTML='';
+  PROJECTS.forEach(p=>{
+    const sec=document.createElement('section');
+    sec.className='project-long reveal';
+    sec.id=`project-${p.id}`;
+    sec.dataset.cat=p.category;
+    sec.innerHTML=`
+      <div>
+        <div class="project-meta-top">
+          <span>SYSTEM ${p.num} / 05</span>
+          ${p.tags.map(t=>`<span class="meta-pill">${t}</span>`).join('')}
+        </div>
+        <h3 class="project-title">${p.title.split(' ').slice(0,2).join(' ')}<br/><span class="outline">${p.title.split(' ').slice(2).join(' ')}</span></h3>
+        <p class="project-desc">${p.excerpt} — ${p.objectives}</p>
+        <div class="project-specs">
+          <div class="spec"><div class="spec-label">Status</div><div class="spec-value">${p.status}</div></div>
+          <div class="spec"><div class="spec-label">Software</div><div class="spec-value">${p.software}</div></div>
+          <div class="spec"><div class="spec-label">Contribution</div><div class="spec-value">${p.contribution}</div>
+            <div class="spec-bar"><div class="spec-bar-fill" style="width:${70+Math.random()*25}%"></div></div>
+          </div>
+          <div class="spec"><div class="spec-label">Key Metric</div><div class="spec-value">${Object.values(p.specs)[0]}</div></div>
+        </div>
+      </div>
+      <div class="project-visual">
+        <div class="visual-header"><span>${p.id.toUpperCase()} • PREVIEW • ${p.date}</span><div class="dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div></div>
+        <div class="visual-body">
+          <div class="tech-grid">${Array.from({length:96}).map((_,i)=>`<div class="tech-cell ${Math.random()<0.12?'active':''}"></div>`).join('')}</div>
+          <div class="cad-placeholder">
+            <i data-lucide="image-off" style="width:20px;height:20px"></i>
+            <div class="cad-label">Replace with genuine ${p.id} CAD / ANSYS screenshot<br/>assets/${p.id}-01.png — keep factual</div>
+          </div>
+          <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap">
+            ${Object.entries(p.specs).map(([k,v])=>`<span style="font-family:var(--mono);font-size:10px;padding:6px 8px;border:1px solid var(--border);border-radius:6px;background:var(--surface2)"><span style="color:var(--muted)">${k}:</span> ${v}</span>`).join('')}
+          </div>
+        </div>
+      </div>
+      <div class="project-details-grid">
+        <div class="detail-card"><h4>The Problem</h4><p>${p.objectives}</p></div>
+        <div class="detail-card"><h4>What I Built</h4><p><strong>${p.contribution}.</strong> ${p.methodology}</p></div>
+        <div class="detail-card"><h4>The Result</h4><p>${p.results}</p></div>
+        <div class="detail-card"><h4>What I Learned / Limits</h4><p>${p.lessons}<br/><br/><strong style="color:var(--yellow)">Limitation:</strong> ${p.limitations}</p></div>
+      </div>
+    `;
+    longProjects.appendChild(sec);
+  });
+  lucide.createIcons();
+}
+
+function renderJournal(){
+  journalGrid.innerHTML='';
+  JOURNAL.forEach(j=>{
+    const el=document.createElement('div');
+    el.className='j-card reveal';
+    el.innerHTML=`
+      <div class="j-thumb"><div class="thumb-grid" style="padding:10px">${thumbCells()}</div></div>
+      <div class="j-body">
+        <div class="j-meta">${j.date} • ${j.project}</div>
+        <div class="j-title">${j.title}</div>
+        <div class="j-excerpt">${j.excerpt}</div>
+      </div>`;
+    el.addEventListener('click',()=>{
+      const proj=PROJECTS.find(p=>p.id===j.project);
+      if(proj) openModal(proj.id);
+    });
+    journalGrid.appendChild(el);
+  });
+}
+
+function renderContact(){
+  contactLinks.innerHTML=`
+    <a class="contact-link" href="mailto:${SITE_CONFIG.email}"><span style="display:flex;align-items:center;gap:8px"><i data-lucide="mail" style="width:14px;height:14px"></i> ${SITE_CONFIG.email}</span><i data-lucide="arrow-up-right" style="width:12px;height:12px"></i></a>
+    <a class="contact-link" href="${SITE_CONFIG.linkedin}" target="_blank" rel="noopener"><span style="display:flex;align-items:center;gap:8px"><i data-lucide="linkedin" style="width:14px;height:14px"></i> LinkedIn</span><i data-lucide="arrow-up-right" style="width:12px;height:12px"></i></a>
+    <a class="contact-link" href="${SITE_CONFIG.github}" target="_blank" rel="noopener"><span style="display:flex;align-items:center;gap:8px"><i data-lucide="github" style="width:14px;height:14px"></i> GitHub</span><i data-lucide="arrow-up-right" style="width:12px;height:12px"></i></a>
+    <a class="contact-link" href="${SITE_CONFIG.cvPath}" download><span style="display:flex;align-items:center;gap:8px"><i data-lucide="file-down" style="width:14px;height:14px"></i> CV — assets/</span><i data-lucide="download" style="width:12px;height:12px"></i></a>
+  `;
+  document.getElementById('aboutLoc').textContent=SITE_CONFIG.location;
+  document.getElementById('statLoc').textContent=SITE_CONFIG.location+' • editable';
+  document.getElementById('statProjects').textContent=PROJECTS.length;
+  document.getElementById('year').textContent=new Date().getFullYear();
+  lucide.createIcons();
+}
+
+// modal
+const modal=document.getElementById('projectModal');
+const modalTitle=document.getElementById('modalTitle');
+const modalKicker=document.getElementById('modalKicker');
+const modalBody=document.getElementById('modalBody');
+function openModal(id){
+  const p=PROJECTS.find(x=>x.id===id);
+  if(!p) return;
+  modalKicker.textContent=`SYSTEM ${p.num} • ${p.category.toUpperCase()} • ${p.date}`;
+  modalTitle.textContent=p.title;
+  modalBody.innerHTML=`
+    <div style="display:grid;grid-template-columns:1.2fr .8fr;gap:24px">
+      <div>
+        <p style="font-size:14px;color:var(--muted2);line-height:1.7">${p.objectives}</p>
+        <div style="margin-top:20px;border:1px solid var(--border);border-radius:12px;overflow:hidden">
+          <div style="padding:12px 14px;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:10px;color:var(--muted);display:flex;justify-content:space-between"><span>PROJECT TEMPLATE — REUSABLE</span><span>${p.software}</span></div>
+          <div style="padding:16px;display:grid;gap:16px">
+            <div><div style="font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;margin-bottom:6px">Objectives</div><div style="font-size:13px;color:var(--text)">${p.objectives}</div></div>
+            <div><div style="font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;margin-bottom:6px">Methodology</div><div style="font-size:13px;color:var(--muted2)">${p.methodology}</div></div>
+            <div><div style="font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;margin-bottom:6px">Results (Genuine Only)</div><div style="font-size:13px;color:var(--text);padding:12px;background:var(--surface);border:1px solid var(--border);border-radius:8px">${p.results}</div></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+              <div><div style="font-family:var(--mono);font-size:10px;color:var(--muted);text-transform:uppercase;margin-bottom:6px">Lessons Learned</div><div style="font-size:12px;color:var(--muted2)">${p.lessons}</div></div>
+              <div><div style="font-family:var(--mono);font-size:10px;color:var(--muted);text-transform:uppercase;margin-bottom:6px">Limitations</div><div style="font-size:12px;color:var(--yellow)">${p.limitations}</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div style="border:1px solid var(--border);background:var(--surface);border-radius:12px;padding:14px">
+          <div style="font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.14em;text-transform:uppercase;margin-bottom:12px">Spec Sheet</div>
+          ${Object.entries(p.specs).map(([k,v])=>`<div style="display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px"><span style="color:var(--muted);font-family:var(--mono)">${k}</span><span style="color:var(--text)">${v}</span></div>`).join('')}
+          <div style="margin-top:14px;padding:10px;border-radius:8px;background:var(--accent-dim);border:1px solid rgba(154,219,176,.2);font-family:var(--mono);font-size:10px;color:var(--accent)">Status: ${p.status}<br/>Contribution: ${p.contribution}</div>
+        </div>
+        <div style="margin-top:12px;border:1px dashed var(--border2);border-radius:12px;padding:18px;text-align:center">
+          <div style="font-family:var(--mono);font-size:10px;color:var(--muted)">Image gallery placeholder</div>
+          <div style="margin-top:10px;display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <div style="aspect-ratio:4/3;background:var(--surface2);border:1px solid var(--border);border-radius:8px"></div>
+            <div style="aspect-ratio:4/3;background:var(--surface2);border:1px solid var(--border);border-radius:8px"></div>
+          </div>
+          <div style="margin-top:8px;font-family:var(--mono);font-size:9px;color:var(--muted)">Replace with assets/${p.id}-*.png — lazy-loaded</div>
+        </div>
+      </div>
+    </div>
+  `;
+  modal.classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeModal(){
+  modal.classList.remove('open');
+  document.body.style.overflow='';
+}
+document.getElementById('modalClose').addEventListener('click',closeModal);
+document.getElementById('modalBackdrop').addEventListener('click',closeModal);
+window.addEventListener('keydown',e=>{ if(e.key==='Escape') closeModal(); });
+
+// filter
+document.getElementById('filterBar').addEventListener('click',e=>{
+  const btn=e.target.closest('.filter-btn'); if(!btn) return;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const f=btn.dataset.filter;
+  renderCards(f);
+  // also filter long sections
+  document.querySelectorAll('.project-long').forEach(el=>{
+    const show = f==='all' || el.dataset.cat===f;
+    el.style.display=show?'grid':'none';
+  });
+});
+
+// mobile nav
+const mobToggle=document.getElementById('mobToggle');
+const mainNav=document.getElementById('mainNav');
+mobToggle.addEventListener('click',()=> mainNav.classList.toggle('open'));
+
+// reveal observer
+let observer;
+function observe(){
+  const els=document.querySelectorAll('.reveal');
+  if(observer) observer.disconnect();
+  observer=new IntersectionObserver(entries=>{
+    entries.forEach(ent=>{ if(ent.isIntersecting) ent.target.classList.add('in'); });
+  },{threshold:0.12});
+  els.forEach(el=>observer.observe(el));
+}
+
+// particle stream
+const canvas=document.getElementById('stream-canvas');
+const ctx=canvas.getContext('2d',{alpha:true});
+const pathEl=document.getElementById('stream-path');
+let pathLen=0;
+let particles=[];
+const COLORS=["#9ADBB0","#E6D68A","#E68A8A","#8AB4E6","#E9EEF0"];
+function resize(){
+  canvas.width=window.innerWidth*window.devicePixelRatio;
+  canvas.height=window.innerHeight*window.devicePixelRatio;
+  canvas.style.width=window.innerWidth+'px';
+  canvas.style.height=window.innerHeight+'px';
+  ctx.setTransform(window.devicePixelRatio,0,0,window.devicePixelRatio,0,0);
+  try{ pathLen=pathEl.getTotalLength(); }catch(e){ pathLen=4000; }
+}
+function initParticles(){
+  particles=[];
+  const count = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 280;
+  for(let i=0;i<count;i++){
+    particles.push({
+      dist: Math.random()*pathLen,
+      speed: 0.4 + Math.random()*1.6,
+      size: Math.random()*2.2+0.6,
+      color: COLORS[Math.floor(Math.random()*COLORS.length)],
+      offset: (Math.random()-0.5)*34,
+      opacity: 0.35+Math.random()*0.7
+    });
+  }
+}
+let lastScroll=0;
+function frame(){
+  const scrollY=window.scrollY;
+  ctx.clearRect(0,0,window.innerWidth,window.innerHeight);
+  // faint orbital rings in hero
+  if(scrollY<900){
+    ctx.save();
+    ctx.translate(window.innerWidth*0.68, 380);
+    ctx.strokeStyle='rgba(255,255,255,0.06)';
+    ctx.setLineDash([6,10]);
+    ctx.lineWidth=1;
+    ctx.beginPath(); ctx.ellipse(0,0, 210, 210, -0.2, 0, Math.PI*2); ctx.stroke();
+    ctx.beginPath(); ctx.ellipse(0,0, 160, 160, 0.2, 0, Math.PI*2); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.restore();
+  }
+  // stream particles
+  for(let p of particles){
+    p.dist+=p.speed;
+    if(p.dist>pathLen) p.dist=0;
+    try{
+      const pt=pathEl.getPointAtLength(p.dist);
+      const pt2=pathEl.getPointAtLength(Math.min(pathLen, p.dist+2));
+      const angle=Math.atan2(pt2.y-pt.y, pt2.x-pt.x)+Math.PI/2;
+      const x=pt.x + Math.cos(angle)*p.offset;
+      const y=pt.y - scrollY + Math.sin(angle)*p.offset*0.2;
+      if(y<-40 || y>window.innerHeight+40) continue;
+      ctx.globalAlpha=p.opacity;
+      ctx.fillStyle=p.color;
+      ctx.shadowColor=p.color;
+      ctx.shadowBlur= p.size>1.6 ? 10 : 0;
+      ctx.beginPath(); ctx.arc(x, y, p.size, 0, Math.PI*2); ctx.fill();
+      ctx.shadowBlur=0;
+    }catch(e){}
+  }
+  ctx.globalAlpha=1;
+  requestAnimationFrame(frame);
+}
+window.addEventListener('resize',()=>{ resize(); });
+resize(); initParticles(); requestAnimationFrame(frame);
+
+// CV buttons
+function handleCV(e){
+  e.preventDefault();
+  alert(`Replace ${SITE_CONFIG.cvPath} in assets/ folder. This demo links to ${SITE_CONFIG.cvPath}. For GitHub Pages, ensure the file exists and is committed.`);
+}
+document.getElementById('cvBtn').addEventListener('click',handleCV);
+document.getElementById('cvBtn2').addEventListener('click',handleCV);
+
+// init
+renderCards('all');
+renderLong();
+renderJournal();
+renderContact();
+observe();
+lucide.createIcons();
+
+// smooth active nav
+const sections=document.querySelectorAll('section[id]');
+window.addEventListener('scroll',()=>{
+  let cur='';
+  sections.forEach(s=>{
+    const top=s.offsetTop-120;
+    if(window.scrollY>=top) cur=s.id;
+  });
+  document.querySelectorAll('.nav a').forEach(a=>{
+    a.classList.toggle('active', a.getAttribute('href')==='#'+cur);
+  });
+});
+</script>
+</body>
+</html>
