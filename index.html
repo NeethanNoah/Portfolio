@@ -756,21 +756,15 @@ const JOURNAL = [
 // Never put a service_role/secret key in this public HTML file.
 const SUPABASE_URL = "https://cqiudlsphgzxacrdfido.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_pIzMEszvrnF1fPvHbzOj2Q_dW9aut2C";
-
 const supabaseReady =
-  window.supabase &&
-  SUPABASE_URL.startsWith("https://") &&
-  !SUPABASE_URL.includes("PASTE_") &&
-  SUPABASE_PUBLISHABLE_KEY &&
-  !SUPABASE_PUBLISHABLE_KEY.includes("PASTE_");
-
+  !!window.supabase &&
+  /^https:\/\//i.test(SUPABASE_URL) &&
+  !!SUPABASE_PUBLISHABLE_KEY &&
+  !SUPABASE_URL.includes("YOUR_SUPABASE_PROJECT_URL") &&
+  !SUPABASE_PUBLISHABLE_KEY.includes("YOUR_SUPABASE_PUBLISHABLE_KEY");
 const sb = supabaseReady
-  ? window.supabase.createClient(
-      SUPABASE_URL,
-      SUPABASE_PUBLISHABLE_KEY
-    )
+  ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY)
   : null;
-
 
 function escapeAttribute(value) {
   return String(value || "").replace(/&/g, "&amp;").replace(/"/g, "&quot;")
@@ -809,7 +803,10 @@ function rowToProject(row, index) {
   };
 }
 async function loadPublishedProjects() {
-  if (!sb) return;
+  if (!sb) {
+    console.warn("Supabase is not configured. Showing the local sample projects.");
+    return;
+  }
   try {
     const { data, error } = await sb.from("projects")
       .select("*")
@@ -982,20 +979,62 @@ function openModal(id){
           ${Object.entries(p.specs).map(([k,v])=>`<div style="display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px"><span style="color:var(--muted);font-family:var(--mono)">${k}</span><span style="color:var(--text)">${v}</span></div>`).join('')}
           <div style="margin-top:14px;padding:10px;border-radius:8px;background:var(--accent-dim);border:1px solid rgba(154,219,176,.2);font-family:var(--mono);font-size:10px;color:var(--accent)">Status: ${p.status}<br/>Contribution: ${p.contribution}</div>
         </div>
-        <div style="margin-top:12px;border:1px dashed var(--border2);border-radius:12px;padding:18px;text-align:center">
-          <div style="font-family:var(--mono);font-size:10px;color:var(--muted)">Image gallery placeholder</div>
-          <div style="margin-top:10px;display:grid;grid-template-columns:1fr 1fr;gap:8px">
-            <div style="aspect-ratio:4/3;background:var(--surface2);border:1px solid var(--border);border-radius:8px"></div>
-            <div style="aspect-ratio:4/3;background:var(--surface2);border:1px solid var(--border);border-radius:8px"></div>
+        <div style="margin-top:12px;border:1px solid var(--border);background:var(--surface);border-radius:12px;padding:14px">
+          <div style="font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.14em;text-transform:uppercase;margin-bottom:12px">Engineering Image Gallery</div>
+          <div id="projectGallery" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px">
+            <p style="grid-column:1/-1;font-size:12px;color:var(--muted)">Loading project images…</p>
           </div>
-          <div style="margin-top:8px;font-family:var(--mono);font-size:9px;color:var(--muted)">Replace with assets/${p.id}-*.png — lazy-loaded</div>
         </div>
       </div>
     </div>
   `;
   modal.classList.add('open');
   document.body.style.overflow='hidden';
+  renderProjectGallery(p);
 }
+
+function renderProjectGallery(project) {
+  const gallery = document.getElementById('projectGallery');
+  if (!gallery) return;
+
+  // The admin dashboard stores uploaded image URLs in the projects.gallery array.
+  const images = Array.isArray(project.images)
+    ? project.images.filter(url =>
+        typeof url === 'string' &&
+        /^https?:\/\//i.test(url.trim())
+      )
+    : [];
+
+  if (!images.length) {
+    gallery.innerHTML = '<p style="grid-column:1/-1;font-size:12px;color:var(--muted);line-height:1.6">No gallery images are saved for this project yet. Upload images in the admin dashboard and save the project. Public image URLs or public Supabase Storage URLs are supported.</p>';
+    return;
+  }
+
+  gallery.innerHTML = '';
+  images.forEach((url, index) => {
+    const figure = document.createElement('figure');
+    figure.style.cssText = 'margin:0;min-width:0';
+
+    const image = document.createElement('img');
+    image.src = url;
+    image.alt = project.title + ' — project image ' + (index + 1);
+    image.loading = 'lazy';
+    image.decoding = 'async';
+    image.style.cssText = 'width:100%;aspect-ratio:4/3;object-fit:contain;background:var(--surface2);border:1px solid var(--border);border-radius:8px;cursor:zoom-in';
+    image.addEventListener('error', () => {
+      figure.innerHTML = '<div style="aspect-ratio:4/3;display:grid;place-items:center;text-align:center;padding:10px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--muted);font-size:11px">Image could not load. Check its URL and Storage permissions.</div>';
+    });
+    image.addEventListener('click', () => window.open(url, '_blank', 'noopener,noreferrer'));
+
+    const caption = document.createElement('figcaption');
+    caption.textContent = 'IMAGE ' + String(index + 1).padStart(2, '0');
+    caption.style.cssText = 'font-family:var(--mono);font-size:9px;letter-spacing:.1em;color:var(--muted);margin-top:6px';
+
+    figure.append(image, caption);
+    gallery.appendChild(figure);
+  });
+}
+
 function closeModal(){
   modal.classList.remove('open');
   document.body.style.overflow='';
