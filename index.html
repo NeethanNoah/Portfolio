@@ -1011,23 +1011,12 @@ function renderProjectGallery(project) {
   }
 
   gallery.innerHTML = '';
-  // Capture gallery clicks before any parent/delegated handler can navigate away.
-  gallery.onclick = (event) => {
-    const clickedImage = event.target.closest('img');
-    if (!clickedImage) return;
-    event.preventDefault();
-    event.stopPropagation();
-    const imageUrl = clickedImage.dataset.viewerUrl || clickedImage.currentSrc || clickedImage.src;
-    const imageTitle = clickedImage.alt || project.title + ' — project image';
-    openImageViewer(imageUrl, imageTitle);
-  };
   images.forEach((url, index) => {
     const figure = document.createElement('figure');
     figure.style.cssText = 'margin:0;min-width:0';
 
     const image = document.createElement('img');
     image.src = url;
-    image.dataset.viewerUrl = url;
     image.alt = project.title + ' — project image ' + (index + 1);
     image.loading = 'lazy';
     image.decoding = 'async';
@@ -1035,11 +1024,7 @@ function renderProjectGallery(project) {
     image.addEventListener('error', () => {
       figure.innerHTML = '<div style="aspect-ratio:4/3;display:grid;place-items:center;text-align:center;padding:10px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--muted);font-size:11px">Image could not load. Check its URL and Storage permissions.</div>';
     });
-    image.addEventListener('click', (event) => {
-      event.preventDefault();
-      event.stopPropagation();
-      openImageViewer(url, project.title + ' — image ' + (index + 1));
-    });
+    image.addEventListener('click', (event) => { event.preventDefault(); event.stopPropagation(); openImageViewer(url, project.title + ' — image ' + (index + 1)); });
 
     const caption = document.createElement('figcaption');
     caption.textContent = 'IMAGE ' + String(index + 1).padStart(2, '0');
@@ -1064,6 +1049,7 @@ function openImageViewer(url, title) {
       </div>`;
     document.body.appendChild(viewer);
     viewer.addEventListener('click', event => { if (event.target === viewer || event.target.id === 'imageViewerClose') closeImageViewer(); });
+    viewer.querySelector('#imageViewerImage').addEventListener('click', event => { event.preventDefault(); event.stopPropagation(); });
   }
   document.getElementById('imageViewerImage').src = url;
   document.getElementById('imageViewerImage').alt = title;
