@@ -1011,12 +1011,23 @@ function renderProjectGallery(project) {
   }
 
   gallery.innerHTML = '';
+  // Capture gallery clicks before any parent/delegated handler can navigate away.
+  gallery.onclick = (event) => {
+    const clickedImage = event.target.closest('img');
+    if (!clickedImage) return;
+    event.preventDefault();
+    event.stopPropagation();
+    const imageUrl = clickedImage.dataset.viewerUrl || clickedImage.currentSrc || clickedImage.src;
+    const imageTitle = clickedImage.alt || project.title + ' — project image';
+    openImageViewer(imageUrl, imageTitle);
+  };
   images.forEach((url, index) => {
     const figure = document.createElement('figure');
     figure.style.cssText = 'margin:0;min-width:0';
 
     const image = document.createElement('img');
     image.src = url;
+    image.dataset.viewerUrl = url;
     image.alt = project.title + ' — project image ' + (index + 1);
     image.loading = 'lazy';
     image.decoding = 'async';
@@ -1024,7 +1035,11 @@ function renderProjectGallery(project) {
     image.addEventListener('error', () => {
       figure.innerHTML = '<div style="aspect-ratio:4/3;display:grid;place-items:center;text-align:center;padding:10px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--muted);font-size:11px">Image could not load. Check its URL and Storage permissions.</div>';
     });
-    image.addEventListener('click', () => window.open(url, '_blank', 'noopener,noreferrer'));
+    image.addEventListener('click', (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      openImageViewer(url, project.title + ' — image ' + (index + 1));
+    });
 
     const caption = document.createElement('figcaption');
     caption.textContent = 'IMAGE ' + String(index + 1).padStart(2, '0');
@@ -1035,13 +1050,43 @@ function renderProjectGallery(project) {
   });
 }
 
+function openImageViewer(url, title) {
+  let viewer = document.getElementById('imageViewerOverlay');
+  if (!viewer) {
+    viewer = document.createElement('div');
+    viewer.id = 'imageViewerOverlay';
+    viewer.style.cssText = 'position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,.94);display:none;align-items:center;justify-content:center;padding:24px;';
+    viewer.innerHTML = `
+      <button type="button" id="imageViewerClose" aria-label="Close image" style="position:absolute;top:18px;right:18px;width:44px;height:44px;border:1px solid #34414a;border-radius:10px;background:#111619;color:#fff;font-size:26px;cursor:pointer">×</button>
+      <div style="max-width:min(1200px,96vw);max-height:90vh;display:flex;flex-direction:column;align-items:center;gap:10px">
+        <img id="imageViewerImage" alt="" style="display:block;max-width:100%;max-height:82vh;object-fit:contain;border-radius:8px">
+        <div id="imageViewerCaption" style="font:12px/1.5 monospace;color:#c0cbd1;text-align:center"></div>
+      </div>`;
+    document.body.appendChild(viewer);
+    viewer.addEventListener('click', event => { if (event.target === viewer || event.target.id === 'imageViewerClose') closeImageViewer(); });
+  }
+  document.getElementById('imageViewerImage').src = url;
+  document.getElementById('imageViewerImage').alt = title;
+  document.getElementById('imageViewerCaption').textContent = title + ' · Click outside or press Escape to close';
+  viewer.style.display = 'flex';
+}
+
+function closeImageViewer() {
+  const viewer = document.getElementById('imageViewerOverlay');
+  if (viewer) {
+    viewer.style.display = 'none';
+    const image = document.getElementById('imageViewerImage');
+    if (image) image.removeAttribute('src');
+  }
+}
+
 function closeModal(){
   modal.classList.remove('open');
   document.body.style.overflow='';
 }
 document.getElementById('modalClose').addEventListener('click',closeModal);
 document.getElementById('modalBackdrop').addEventListener('click',closeModal);
-window.addEventListener('keydown',e=>{ if(e.key==='Escape') closeModal(); });
+window.addEventListener('keydown',e=>{ if(e.key==='Escape') { const viewer=document.getElementById('imageViewerOverlay'); if(viewer && viewer.style.display==='flex') closeImageViewer(); else closeModal(); } });
 
 // filter
 document.getElementById('filterBar').addEventListener('click',e=>{
