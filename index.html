@@ -48,6 +48,7 @@ body{
 ::-webkit-scrollbar-track{background:var(--bg)}
 a{color:inherit;text-decoration:none}
 button{font:inherit;background:none;border:none;cursor:pointer;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 img{display:block;max-width:100%}
 /* canvas */
 #particle-layer{
@@ -430,9 +431,9 @@ img{display:block;max-width:100%}
         <a href="#" id="cvBtn" class="btn btn-ghost"><i data-lucide="download" style="width:14px;height:14px"></i> Download CV</a>
       </div>
       <div style="margin-top:36px;display:flex;gap:10px;flex-wrap:wrap;font-family:var(--mono);font-size:10px;color:var(--muted)">
-        <span style="border:1px solid var(--border);padding:6px 10px;border-radius:999px">UK • Remote Capable</span>
+        <span style="border:1px solid var(--border);padding:6px 10px;border-radius:999px">Aerospace Engineering</span>
         <span style="border:1px solid var(--border);padding:6px 10px;border-radius:999px">SOLIDWORKS • ANSYS • CFD • FEA</span>
-        <span style="border:1px solid var(--border);padding:6px 10px;border-radius:999px;background:var(--accent-dim);color:var(--accent);border-color:rgba(154,219,176,.3)">Available for industrial placement from Summer 2027</span>
+        <span style="border:1px solid var(--border);padding:6px 10px;border-radius:999px;background:var(--accent-dim);color:var(--accent);border-color:rgba(154,219,176,.3)">Space Systems • Engineering</span>
       </div>
     </div>
     <div class="hero-visual">
@@ -453,9 +454,9 @@ img{display:block;max-width:100%}
   <div class="stats-strip">
     <div class="stats-inner">
       <div class="stat"><span class="stat-label">Program</span><span class="stat-value"><b>HND</b> Aerospace Eng.</span><span class="stat-sub">Pearson — In progress</span></div>
-      <div class="stat"><span class="stat-label">Focus</span><span class="stat-value"><b>82%</b> Systems & Simulation</span><span class="stat-sub">CAD • FEA • CFD • Prototyping</span></div>
-      <div class="stat"><span class="stat-label">Systems Built</span><span class="stat-value"><b id="statProjects">5</b> Flight / Ground Concepts</span><span class="stat-sub">End-to-end case studies</span></div>
-      <div class="stat"><span class="stat-label">Location</span><span class="stat-value"><b>UK</b> • Open to placement</span><span class="stat-sub" id="statLoc">Editable via site-config.js</span></div>
+      <div class="stat"><span class="stat-label">Focus</span><span class="stat-value"><b>CAD</b> & Simulation</span><span class="stat-sub">CAD • FEA • CFD • Prototyping</span></div>
+      <div class="stat"><span class="stat-label">Published Projects</span><span class="stat-value"><b id="statProjects">0</b> Database records</span><span class="stat-sub">Verified published entries</span></div>
+      <div class="stat"><span class="stat-label">Location</span><span class="stat-value"><b>Profile</b> Details</span><span class="stat-sub" id="statLoc">Editable via site-config.js</span></div>
     </div>
   </div>
 
@@ -463,9 +464,9 @@ img{display:block;max-width:100%}
     <div class="section-head">
       <div>
         <div class="kicker">Selected Work</div>
-        <h2 class="h2">Five Systems,<br/><span class="outline">End to End</span></h2>
+        <h2 class="h2">Engineering Work,<br/><span class="outline">End to End</span></h2>
       </div>
-      <p class="body-muted">Each project shipped to hardware or tested against real analysis. Here’s the problem, requirements, what I built, what happened, and what I’d do differently next time. All data is editable — no invented results.</p>
+      <p class="body-muted">Published projects are loaded from the portfolio database. Each entry documents the work, methods, available evidence, and limitations.</p>
     </div>
 
     <div class="filter-bar" id="filterBar">
@@ -476,6 +477,7 @@ img{display:block;max-width:100%}
       <button class="filter-btn" data-filter="space">Space Systems</button>
     </div>
 
+    <div id="projectsState" class="body-muted" role="status" aria-live="polite" style="padding:18px 0">Loading published projects from Supabase…</div>
     <div class="cards-grid" id="cardsGrid"></div>
 
     <div id="longProjects"></div>
@@ -551,7 +553,7 @@ img{display:block;max-width:100%}
     <div class="about-grid">
       <div class="about-card reveal">
         <h3>Biography — Editable in site-config.js</h3>
-        <p style="font-size:13.5px;color:var(--muted2);line-height:1.7">I’m an aerospace engineering student based in the UK, exploring the intersection of computational analysis, mechanical design, and space technology. My work centres on planetary mobility, structural analysis, and aerodynamic testing. I prefer to show calculations, CAD, and genuine simulation screenshots over renders. Currently seeking an industrial placement from Summer 2027 to apply systems engineering in a spacecraft or advanced manufacturing environment.</p>
+        <p style="font-size:13.5px;color:var(--muted2);line-height:1.7">I’m an aerospace engineering student exploring the intersection of computational analysis, mechanical design, and space technology. My work centres on planetary mobility, structural analysis, and aerodynamic testing. I prefer to show calculations, CAD, and genuine simulation screenshots over renders. Currently seeking an industrial placement from Summer 2027 to apply systems engineering in a spacecraft or advanced manufacturing environment.</p>
         <div style="margin-top:18px;display:flex;gap:8px;flex-wrap:wrap">
           <span class="meta-pill">Planetary Robotics</span><span class="meta-pill">CFD • FEA</span><span class="meta-pill">CAD • DFM</span><span class="meta-pill">Space Systems</span>
         </div>
@@ -626,135 +628,18 @@ img{display:block;max-width:100%}
 const SITE_CONFIG = {
   name: "Neethan",
   role: "Aerospace Engineering Student",
-  location: "United Kingdom",
-  email: "neethan.email@example.com", // replace
-  linkedin: "https://linkedin.com/in/yourprofile",
-  github: "https://github.com/yourprofile",
-  cvPath: "assets/Neethan_CV.pdf", // replace file in assets/
-  availableFrom: "Summer 2027"
+  location: "",
+  email: "",
+  linkedin: "",
+  github: "",
+  cvPath: "",
+  availableFrom: ""
 };
 // ---------- PROJECTS - would be projects.js / projects.json ----------
-let PROJECTS = [
-  {
-    id:"hexapod",
-    num:"01",
-    title:"Hybrid Hexapod Martian Rover",
-    category:"robotics",
-    tags:["ROBOTICS","PLANETARY","SOLIDWORKS","PROTOTYPE"],
-    status:"Concept + Partial Hardware",
-    date:"2025",
-    contribution:"Chassis, leg-wheel mobility, CAD, calculations",
-    software:"SOLIDWORKS, Python, Arduino",
-    excerpt:"Six-legged mobility with permanently mounted wheels at each leg end for regolith traversal. 2×2×2 ft chassis envelope.",
-    objectives:"Design a planetary rover that combines legged articulation for obstacle clearance with wheel rolling for energy-efficient traverse. Envelope 2×2×2 ft.",
-    methodology:"Requirements → concept sketches → kinematic study → CAD assemblies → mobility mechanism prototyping → sensor integration plan → fabrication plan.",
-    specs:{chassis:"2×2×2 ft target", mobility:"6× leg + wheel tip", terrain:"Regolith, 15° slope, 150mm rock", mass:"<25kg conceptual"},
-    results:"CAD assembly complete, leg prototype tested for 120° sweep. Wheel tip integration conceptual — not yet tested. Control architecture drafted.",
-    lessons:"Leg-wheel handoff needs clutch mechanism. Distinguish conceptual vs tested hardware clearly.",
-    limitations:"No thermal/vacuum testing. Power budget preliminary.",
-    images:["hexapod-cad","leg-mech"],
-    color:"var(--accent)"
-  },
-  {
-    id:"fea",
-    num:"02",
-    title:"Aerospace Compressor Blade FEA",
-    category:"structures",
-    tags:["FEA","ANSYS","STRUCTURES","VALIDATION"],
-    status:"Preliminary Results — Pending Validation",
-    date:"2025",
-    contribution:"Geometry, mesh, BCs, post-processing",
-    software:"ANSYS Mechanical, SOLIDWORKS",
-    excerpt:"Static structural analysis of compressor blade. Preliminary: 3.2882 mm deformation, 439.08 MPa von Mises. No safety claims.",
-    objectives:"Perform structural analysis of aerospace compressor blade under centrifugal and aerodynamic loading.",
-    methodology:"Geometry import → material assignment → mesh (tetrahedral, convergence check) → boundary conditions (root fixed, rotational velocity) → solve → results extraction.",
-    specs:{deformation:"3.2882 mm max (preliminary)", stress:"439.08 MPa von Mises max (preliminary)", mesh:"~180k elements, convergence pending", material:"[Replace with actual alloy]"},
-    results:"Max total deformation 3.2882 mm at tip, max equivalent stress 439.08 MPa at root fillet. Results labelled preliminary pending mesh convergence and experimental validation.",
-    lessons:"Stress concentration at fillet needs refinement. Convergence study required before conclusions.",
-    limitations:"Preliminary — not validated. Do not make unsupported safety claims. Replace placeholder material properties with verified data.",
-    images:["fea-mesh","fea-stress"],
-    color:"var(--yellow)"
-  },
-  {
-    id:"windtunnel",
-    num:"03",
-    title:"Subsonic Wind Tunnel",
-    category:"aerodynamics",
-    tags:["AERODYNAMICS","FABRICATION","TESTING"],
-    status:"Design + Build",
-    date:"2024-2025",
-    contribution:"Test-section design, fabrication, instrumentation plan",
-    software:"SOLIDWORKS, Hand calcs",
-    excerpt:"Small-scale wind tunnel test-section 12×12×24 inches for low-speed aerodynamic testing.",
-    objectives:"Design and fabricate a 12×12×24 inch test-section for educational subsonic testing.",
-    methodology:"Requirements → contraction ratio → diffuser angle → material selection (acrylic/plywood) → fabrication → instrumentation (pitot, manometer) → test methodology.",
-    specs:{testSection:"12×12×24 in", speed:"<30 m/s nominal", materials:"Acrylic, plywood, aluminium", instrumentation:"Pitot-static, hot-wire placeholder"},
-    results:"Test-section fabricated, flow uniformity check pending. SolidWorks drawings placeholder — replace with genuine screenshots.",
-    lessons:"Sealing and contraction smoothness critical for flow quality.",
-    limitations:"No calibrated flow results yet. Add genuine test data when available.",
-    images:["tunnel-cad","tunnel-build"],
-    color:"var(--blue)"
-  },
-  {
-    id:"airfoil",
-    num:"04",
-    title:"Airfoil CFD",
-    category:"aerodynamics",
-    tags:["CFD","FLUENT","AERODYNAMICS"],
-    status:"In Progress — Results Placeholder",
-    date:"2025",
-    contribution:"Domain, mesh, setup, post-processing",
-    software:"ANSYS Fluent, SOLIDWORKS",
-    excerpt:"Aerodynamic modelling using ANSYS Fluent. Spaces for geometry, mesh, velocity/pressure contours, lift/drag — no invented results.",
-    objectives:"Model subsonic flow over airfoil, extract lift/drag, analyse flow separation.",
-    methodology:"Airfoil geometry (NACA XXXX) → computational domain → structured mesh → BCs (velocity inlet, pressure outlet) → turbulence model → convergence monitoring → post-processing.",
-    specs:{airfoil:"[Insert NACA profile]", aoa:"Sweep placeholder", re:"[Insert Reynolds]", mesh:"[Insert cell count]"},
-    results:"Velocity contours, pressure contours, streamlines placeholders. Never invent Cl/Cd. Replace with genuine Fluent screenshots when available.",
-    lessons:"Mesh quality near leading edge dominates convergence. Y+ monitoring required.",
-    limitations:"No verified results yet. Conclusions pending.",
-    images:["cfd-mesh","cfd-contour"],
-    color:"var(--red)"
-  },
-  {
-    id:"cubesat",
-    num:"05",
-    title:"CubeSat Radio Sky-Intensity Mapping",
-    category:"space",
-    tags:["SPACE SYSTEMS","CONCEPT","MISSION DESIGN"],
-    status:"Proposed Concept",
-    date:"2025",
-    contribution:"Mission objectives, payload, architecture, constraints",
-    software:"STK placeholder, Python, Docs",
-    excerpt:"Proposed 3U CubeSat for low-frequency radio sky-intensity mapping. Conceptual work — clearly labelled.",
-    objectives:"Propose a CubeSat mission for radio sky-intensity mapping, define payload, power, comms, orbit.",
-    methodology:"Mission objectives → payload (dipole antenna) → satellite bus → power budget → link budget → orbit selection → risk analysis.",
-    specs:{form:"3U CubeSat concept", payload:"VHF dipole, SDR", orbit:"LEO ~500km placeholder", power:"~10W avg conceptual"},
-    results:"Conceptual architecture complete. Power and link budgets preliminary. No hardware built.",
-    lessons:"RF interference and deployment mechanism are key risks.",
-    limitations:"Clearly conceptual. No flight hardware, no launch manifest.",
-    images:["cubesat-bus","mission-orbit"],
-    color:"var(--silver)"
-  },
-  // Example 6th project — duplicate to add new:
-  // {
-  //   id:"propulsion",
-  //   num:"06",
-  //   title:"Cold Gas Thruster Test Stand",
-  //   category:"space",
-  //   tags:["PROPULSION","TESTING"],
-  //   status:"Proposed",
-  //   date:"2026",
-  //   ...
-  // }
-];
+let PROJECTS = [];
 
 // ---------- JOURNAL - would be journal.js ----------
-const JOURNAL = [
-  {id:"j1", date:"2025-08-12", title:"Why leg-wheel needs a clutch, not just a wheel on a leg", excerpt:"The tip wheel spins when leg lifts. Without decoupling, you waste energy and scuff regolith. Sketches for a passive clutch.", cover:"hexapod", project:"hexapod"},
-  {id:"j2", date:"2025-07-03", title:"FEA: When 439 MPa doesn't mean failure", excerpt:"Preliminary stress at fillet is mesh-dependent. Convergence study shows stress keeps rising with refinement. Label as preliminary.", cover:"fea", project:"fea"},
-  {id:"j3", date:"2025-06-18", title:"Wind tunnel sealing matters more than fan power", excerpt:"Acrylic joints leaked, contraction separation. Tape is not engineering. Rebuilt with gaskets.", cover:"tunnel", project:"windtunnel"},
-];
-
+const JOURNAL = [];
 
 // ---------- SUPABASE INTEGRATION ----------
 // Replace these two placeholders with your Supabase Project URL and publishable key.
@@ -771,10 +656,12 @@ const sb = supabaseReady
   ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY)
   : null;
 
-function escapeAttribute(value) {
-  return String(value || "").replace(/&/g, "&amp;").replace(/"/g, "&quot;")
-    .replace(/</g, "&lt;").replace(/>/g, "&gt;");
+function escapeHTML(value) {
+  return String(value ?? "").replace(/[&<>"']/g, c => ({
+    "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"
+  }[c]));
 }
+function escapeAttribute(value) { return escapeHTML(value); }
 function parseSpecs(value) {
   if (!value) return {};
   if (typeof value === "object") return value;
@@ -786,8 +673,8 @@ function rowToProject(row, index) {
     id: row.slug || row.id,
     dbId: row.id,
     num: String(row.num || String(index + 1).padStart(2, "0")),
-    title: row.title || "Untitled project",
-    category: row.category || "space",
+    title: String(row.title || "").trim(),
+    category: String(row.category || "").trim(),
     tags,
     status: row.project_status || "Project",
     date: row.project_date || (row.created_at ? row.created_at.slice(0, 4) : ""),
@@ -807,9 +694,39 @@ function rowToProject(row, index) {
     color: "var(--accent)"
   };
 }
+function syncCategoryFilters() {
+  const bar = document.getElementById("filterBar");
+  if (!bar) return;
+  const categories = [...new Set(PROJECTS.map(p => p.category).filter(Boolean))];
+  bar.innerHTML = "";
+  const addFilter = (value, label, active=false) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "filter-btn" + (active ? " active" : "");
+    button.dataset.filter = value;
+    button.textContent = label;
+    bar.appendChild(button);
+  };
+  addFilter("all", "All Projects", true);
+  categories.forEach(category => addFilter(category, category.replace(/[-_]/g, " ")));
+}
+function setProjectsState(text, isError=false) {
+  const state = document.getElementById("projectsState");
+  if (!state) return;
+  state.textContent = text;
+  state.style.color = isError ? "var(--red)" : "var(--muted2)";
+  state.style.display = text ? "block" : "none";
+}
 async function loadPublishedProjects() {
+  setProjectsState("Loading published projects from Supabase…");
+  PROJECTS = [];
+  syncCategoryFilters();
+  renderCards("all");
+  renderLong();
+  renderJournal();
   if (!sb) {
-    console.warn("Supabase is not configured. Showing the local sample projects.");
+    setProjectsState("Portfolio data is not configured. Check the Supabase URL and publishable key.", true);
+    renderContact();
     return;
   }
   try {
@@ -818,17 +735,30 @@ async function loadPublishedProjects() {
       .eq("status", "published")
       .order("created_at", { ascending: false });
     if (error) throw error;
-    // Keep the existing sample projects visible until the first project is published.
-    if (data && data.length) {
-      PROJECTS = data.map(rowToProject);
-      renderCards("all");
-      renderLong();
-      renderContact();
-      observe();
-      lucide.createIcons();
-    }
+    const rows = Array.isArray(data) ? data : [];
+    PROJECTS = rows
+      .filter(row => row && row.id != null && typeof row.title === "string" &&
+        row.title.trim() && typeof row.category === "string" && row.category.trim())
+      .filter((row, i, arr) => arr.findIndex(other => String(other.id) === String(row.id)) === i)
+      .map(rowToProject);
+    syncCategoryFilters();
+    renderCards("all");
+    renderLong();
+    renderJournal();
+    renderContact();
+    observe();
+    if (!PROJECTS.length) setProjectsState("No published projects are available yet. Publish a valid project from the admin dashboard to display it here.");
+    else setProjectsState("");
+    lucide.createIcons();
   } catch (err) {
-    console.error("Could not load published Supabase projects:", err.message);
+    console.error("Could not load published Supabase projects:", err);
+    PROJECTS = [];
+    syncCategoryFilters();
+    renderCards("all");
+    renderLong();
+    renderJournal();
+    renderContact();
+    setProjectsState("Projects could not be loaded from Supabase. Check the connection and access policies, then try again.", true);
   }
 }
 
@@ -838,30 +768,48 @@ const longProjects = document.getElementById('longProjects');
 const journalGrid = document.getElementById('journalGrid');
 const contactLinks = document.getElementById('contactLinks');
 
-function thumbCells(hlCount=14){
-  let html=''; for(let i=0;i<60;i++){ const hl = Math.random()<0.18 ? ' hl' : ''; html+=`<div class="thumb-cell${hl}"></div>`}
-  return html;
-}
+function thumbCells(){ return ''; }
 
 function renderCards(filter='all'){
   cardsGrid.innerHTML='';
-  PROJECTS.filter(p=> filter==='all' || p.category===filter).forEach(p=>{
-    const el=document.createElement('div');
-    el.className='p-card reveal';
-    el.innerHTML=`
-      <div class="p-card-thumb">${p.cover_image ? `<img src="${escapeAttribute(p.cover_image)}" alt="${escapeAttribute(p.title)}" loading="lazy" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0">` : `<div class="thumb-grid">${thumbCells()}</div>`}
-        <div style="position:absolute;left:12px;bottom:10px;display:flex;gap:6px">
-          ${p.tags.slice(0,2).map(t=>`<span style="font-family:var(--mono);font-size:9px;padding:4px 6px;border-radius:4px;background:rgba(0,0,0,.6);border:1px solid rgba(255,255,255,.12);color:var(--muted2)">${t}</span>`).join('')}
+  const visible = PROJECTS.filter(p => filter === 'all' || p.category === filter);
+  if (!visible.length) {
+    cardsGrid.style.display = "none";
+    return;
+  }
+  cardsGrid.style.display = "grid";
+  const groups = filter === "all" ? [...new Set(visible.map(p => p.category))] : [filter];
+  groups.forEach(category => {
+    const group = visible.filter(p => p.category === category);
+    if (!group.length) return;
+    const heading = document.createElement("h3");
+    heading.style.cssText = "grid-column:1/-1;font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);padding-top:12px";
+    heading.textContent = category.replace(/[-_]/g, " ");
+    cardsGrid.appendChild(heading);
+    group.forEach(p => {
+      const el = document.createElement('button');
+      el.type = "button";
+      el.className = 'p-card reveal';
+      el.style.textAlign = "left";
+      const imageMarkup = p.cover_image
+        ? `<img src="${escapeAttribute(p.cover_image)}" alt="${escapeAttribute(p.title)} cover image" loading="lazy" decoding="async" style="width:100%;height:100%;object-fit:contain;position:absolute;inset:0">`
+        : `<div style="position:absolute;inset:0;display:grid;place-items:center;color:var(--muted);font-family:var(--mono);font-size:10px">NO COVER IMAGE</div>`;
+      el.innerHTML = `
+        <div class="p-card-thumb">${imageMarkup}
+          <div style="position:absolute;left:12px;bottom:10px;display:flex;gap:6px;flex-wrap:wrap">
+            ${(Array.isArray(p.tags)?p.tags:[]).slice(0,2).map(t=>`<span style="font-family:var(--mono);font-size:9px;padding:4px 6px;border-radius:4px;background:rgba(0,0,0,.75);border:1px solid rgba(255,255,255,.12);color:var(--muted2)">${escapeHTML(t)}</span>`).join('')}
+          </div>
         </div>
-        <div style="position:absolute;right:12px;top:10px;font-family:var(--mono);font-size:9px;color:var(--muted)">${p.num} / 05</div>
-      </div>
-      <div class="p-card-body">
-        <div class="p-card-title">${p.title}</div>
-        <div class="p-card-cat">${p.category} • ${p.status}</div>
-        <div class="p-card-foot"><span><span class="status-dot"></span>${p.date}</span><span style="display:flex;align-items:center;gap:4px">View <i data-lucide="arrow-up-right" style="width:12px;height:12px"></i></span></div>
-      </div>`;
-    el.addEventListener('click',()=>openModal(p.id));
-    cardsGrid.appendChild(el);
+        <div class="p-card-body">
+          <div class="p-card-title">${escapeHTML(p.title)}</div>
+          <div class="p-card-cat">${escapeHTML(p.category)} • ${escapeHTML(p.status)}</div>
+          <div class="p-card-foot"><span>${escapeHTML(p.date)}</span><span>View details ↗</span></div>
+        </div>`;
+      const img = el.querySelector("img");
+      if (img) img.addEventListener("error", () => img.remove());
+      el.addEventListener('click',()=>openModal(p.id));
+      cardsGrid.appendChild(el);
+    });
   });
   lucide.createIcons();
   observe();
@@ -880,22 +828,22 @@ function renderLong(){
     sec.innerHTML=`
       <div>
         <div class="project-meta-top">
-          <span>SYSTEM ${p.num} / 05</span>
-          ${p.tags.map(t=>`<span class="meta-pill">${t}</span>`).join('')}
+          <span>SYSTEM ${escapeHTML(p.num)} / ${PROJECTS.length}</span>
+          ${p.tags.map(t=>`<span class="meta-pill">${escapeHTML(t)}</span>`).join('')}
         </div>
-        <h3 class="project-title">${p.title.split(' ').slice(0,2).join(' ')}<br/><span class="outline">${p.title.split(' ').slice(2).join(' ')}</span></h3>
-        <p class="project-desc">${p.excerpt} — ${p.objectives}</p>
+        <h3 class="project-title">${escapeHTML(p.title.split(' ').slice(0,2).join(' '))}<br/><span class="outline">${escapeHTML(p.title.split(' ').slice(2).join(' '))}</span></h3>
+        <p class="project-desc">${escapeHTML(p.excerpt)} — ${escapeHTML(p.objectives)}</p>
         <div class="project-specs">
-          <div class="spec"><div class="spec-label">Status</div><div class="spec-value">${p.status}</div></div>
-          <div class="spec"><div class="spec-label">Software</div><div class="spec-value">${p.software}</div></div>
-          <div class="spec"><div class="spec-label">Contribution</div><div class="spec-value">${p.contribution}</div>
+          <div class="spec"><div class="spec-label">Status</div><div class="spec-value">${escapeHTML(p.status)}</div></div>
+          <div class="spec"><div class="spec-label">Software</div><div class="spec-value">${escapeHTML(p.software)}</div></div>
+          <div class="spec"><div class="spec-label">Contribution</div><div class="spec-value">${escapeHTML(p.contribution)}</div>
             <div class="spec-bar"><div class="spec-bar-fill" style="width:${70+Math.random()*25}%"></div></div>
           </div>
-          <div class="spec"><div class="spec-label">Key Metric</div><div class="spec-value">${Object.values(p.specs)[0]}</div></div>
+          <div class="spec"><div class="spec-label">Key Metric</div><div class="spec-value">${escapeHTML(Object.values(p.specs)[0] ?? "")}</div></div>
         </div>
       </div>
       <div class="project-visual">
-        <div class="visual-header"><span>${p.id.toUpperCase()} • PREVIEW • ${p.date}</span><div class="dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div></div>
+        <div class="visual-header"><span>${escapeHTML(p.id.toUpperCase())} • PREVIEW • ${escapeHTML(p.date)}</span><div class="dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div></div>
         <div class="visual-body">
           ${p.cover_image ? `<img src="${escapeAttribute(p.cover_image)}" alt="${escapeAttribute(p.title)} cover image" loading="lazy" style="width:100%;max-height:340px;object-fit:contain;border-radius:8px;margin-bottom:16px">` : ""}
           ${galleryImages.length ? `
@@ -907,25 +855,25 @@ function renderLong(){
               `).join("")}
             </div>
           ` : `
-            <div class="tech-grid">${Array.from({length:96}).map((_,i)=>`<div class="tech-cell ${Math.random()<0.12?'active':''}"></div>`).join('')}</div>
             <div class="cad-placeholder">
               <i data-lucide="image-off" style="width:20px;height:20px"></i>
-              <div class="cad-label">No engineering gallery images uploaded yet.<br/>Upload images for this project in the admin dashboard.</div>
+              <div class="cad-label">No engineering images have been uploaded for this project.</div>
             </div>
           `}
           <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap">
-            ${Object.entries(p.specs).map(([k,v])=>`<span style="font-family:var(--mono);font-size:10px;padding:6px 8px;border:1px solid var(--border);border-radius:6px;background:var(--surface2)"><span style="color:var(--muted)">${k}:</span> ${v}</span>`).join('')}
+            ${Object.entries(p.specs).map(([k,v])=>`<span style="font-family:var(--mono);font-size:10px;padding:6px 8px;border:1px solid var(--border);border-radius:6px;background:var(--surface2)"><span style="color:var(--muted)">${escapeHTML(k)}:</span> ${escapeHTML(v)}</span>`).join('')}
           </div>
         </div>
       </div>
       <div class="project-details-grid">
-        <div class="detail-card"><h4>The Problem</h4><p>${p.objectives}</p></div>
-        <div class="detail-card"><h4>What I Built</h4><p><strong>${p.contribution}.</strong> ${p.methodology}</p></div>
-        <div class="detail-card"><h4>The Result</h4><p>${p.results}</p></div>
-        <div class="detail-card"><h4>What I Learned / Limits</h4><p>${p.lessons}<br/><br/><strong style="color:var(--yellow)">Limitation:</strong> ${p.limitations}</p></div>
+        <div class="detail-card"><h4>The Problem</h4><p>${escapeHTML(p.objectives)}</p></div>
+        <div class="detail-card"><h4>What I Built</h4><p><strong>${escapeHTML(p.contribution)}.</strong> ${escapeHTML(p.methodology)}</p></div>
+        <div class="detail-card"><h4>The Result</h4><p>${escapeHTML(p.results)}</p></div>
+        <div class="detail-card"><h4>What I Learned / Limits</h4><p>${escapeHTML(p.lessons)}<br/><br/><strong style="color:var(--yellow)">Limitation:</strong> ${escapeHTML(p.limitations)}</p></div>
       </div>
     `;
     longProjects.appendChild(sec);
+    sec.querySelectorAll("img").forEach(img => img.addEventListener("error", () => img.remove(), { once: true }));
   });
   lucide.createIcons();
 }
@@ -940,6 +888,8 @@ longProjects.addEventListener("click", e => {
 
 function renderJournal(){
   journalGrid.innerHTML='';
+  const journalSection = document.getElementById("journal");
+  if (journalSection) journalSection.style.display = JOURNAL.length ? "" : "none";
   JOURNAL.forEach(j=>{
     const el=document.createElement('div');
     el.className='j-card reveal';
@@ -959,16 +909,23 @@ function renderJournal(){
 }
 
 function renderContact(){
-  contactLinks.innerHTML=`
-    <a class="contact-link" href="mailto:${SITE_CONFIG.email}"><span style="display:flex;align-items:center;gap:8px"><i data-lucide="mail" style="width:14px;height:14px"></i> ${SITE_CONFIG.email}</span><i data-lucide="arrow-up-right" style="width:12px;height:12px"></i></a>
-    <a class="contact-link" href="${SITE_CONFIG.linkedin}" target="_blank" rel="noopener"><span style="display:flex;align-items:center;gap:8px"><i data-lucide="linkedin" style="width:14px;height:14px"></i> LinkedIn</span><i data-lucide="arrow-up-right" style="width:12px;height:12px"></i></a>
-    <a class="contact-link" href="${SITE_CONFIG.github}" target="_blank" rel="noopener"><span style="display:flex;align-items:center;gap:8px"><i data-lucide="github" style="width:14px;height:14px"></i> GitHub</span><i data-lucide="arrow-up-right" style="width:12px;height:12px"></i></a>
-    <a class="contact-link" href="${SITE_CONFIG.cvPath}" download><span style="display:flex;align-items:center;gap:8px"><i data-lucide="file-down" style="width:14px;height:14px"></i> CV — assets/</span><i data-lucide="download" style="width:12px;height:12px"></i></a>
-  `;
-  document.getElementById('aboutLoc').textContent=SITE_CONFIG.location;
-  document.getElementById('statLoc').textContent=SITE_CONFIG.location+' • editable';
-  document.getElementById('statProjects').textContent=PROJECTS.length;
-  document.getElementById('year').textContent=new Date().getFullYear();
+  const links = [];
+  const validHttp = value => {
+    try { const u = new URL(value); return u.protocol === "https:" && !/yourprofile|example\.com|placeholder/i.test(value); }
+    catch (_) { return false; }
+  };
+  if (SITE_CONFIG.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(SITE_CONFIG.email) && !/example\.com|your@email/i.test(SITE_CONFIG.email)) {
+    links.push(`<a class="contact-link" href="mailto:${escapeAttribute(SITE_CONFIG.email)}"><span>Email</span><span>Send an Email ↗</span></a>`);
+  }
+  if (validHttp(SITE_CONFIG.linkedin)) links.push(`<a class="contact-link" href="${escapeAttribute(SITE_CONFIG.linkedin)}" target="_blank" rel="noopener noreferrer"><span>LinkedIn</span><span>Connect on LinkedIn ↗</span></a>`);
+  if (validHttp(SITE_CONFIG.github)) links.push(`<a class="contact-link" href="${escapeAttribute(SITE_CONFIG.github)}" target="_blank" rel="noopener noreferrer"><span>GitHub</span><span>View GitHub ↗</span></a>`);
+  if (SITE_CONFIG.cvPath && !/placeholder|yourprofile/i.test(SITE_CONFIG.cvPath)) links.push(`<a class="contact-link" href="${escapeAttribute(SITE_CONFIG.cvPath)}" download><span>CV / Resume</span><span>Download CV ↓</span></a>`);
+  contactLinks.innerHTML = links.length ? links.join("") : '<p style="font-size:13px;color:var(--muted2)">Contact links are not configured yet. Add your verified email, LinkedIn, GitHub and CV path in SITE_CONFIG.</p>';
+  const location = SITE_CONFIG.location || "Not specified";
+  document.getElementById('aboutLoc').textContent = location;
+  document.getElementById('statLoc').textContent = location;
+  document.getElementById('statProjects').textContent = String(PROJECTS.length);
+  document.getElementById('year').textContent = new Date().getFullYear();
   lucide.createIcons();
 }
 
@@ -980,21 +937,21 @@ const modalBody=document.getElementById('modalBody');
 function openModal(id){
   const p=PROJECTS.find(x=>x.id===id);
   if(!p) return;
-  modalKicker.textContent=`SYSTEM ${p.num} • ${p.category.toUpperCase()} • ${p.date}`;
+  modalKicker.textContent=`SYSTEM ${p.num} • ${escapeHTML(p.category.toUpperCase())} • ${escapeHTML(p.date)}`;
   modalTitle.textContent=p.title;
   modalBody.innerHTML=`
     <div style="display:grid;grid-template-columns:1.2fr .8fr;gap:24px">
       <div>
-        <p style="font-size:14px;color:var(--muted2);line-height:1.7">${p.objectives}</p>
+        <p style="font-size:14px;color:var(--muted2);line-height:1.7">${escapeHTML(p.objectives)}</p>
         <div style="margin-top:20px;border:1px solid var(--border);border-radius:12px;overflow:hidden">
-          <div style="padding:12px 14px;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:10px;color:var(--muted);display:flex;justify-content:space-between"><span>PROJECT TEMPLATE — REUSABLE</span><span>${p.software}</span></div>
+          <div style="padding:12px 14px;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:10px;color:var(--muted);display:flex;justify-content:space-between"><span>PROJECT TEMPLATE — REUSABLE</span><span>${escapeHTML(p.software)}</span></div>
           <div style="padding:16px;display:grid;gap:16px">
-            <div><div style="font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;margin-bottom:6px">Objectives</div><div style="font-size:13px;color:var(--text)">${p.objectives}</div></div>
-            <div><div style="font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;margin-bottom:6px">Methodology</div><div style="font-size:13px;color:var(--muted2)">${p.methodology}</div></div>
-            <div><div style="font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;margin-bottom:6px">Results (Genuine Only)</div><div style="font-size:13px;color:var(--text);padding:12px;background:var(--surface);border:1px solid var(--border);border-radius:8px">${p.results}</div></div>
+            <div><div style="font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;margin-bottom:6px">Objectives</div><div style="font-size:13px;color:var(--text)">${escapeHTML(p.objectives)}</div></div>
+            <div><div style="font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;margin-bottom:6px">Methodology</div><div style="font-size:13px;color:var(--muted2)">${escapeHTML(p.methodology)}</div></div>
+            <div><div style="font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;margin-bottom:6px">Results (Genuine Only)</div><div style="font-size:13px;color:var(--text);padding:12px;background:var(--surface);border:1px solid var(--border);border-radius:8px">${escapeHTML(p.results)}</div></div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-              <div><div style="font-family:var(--mono);font-size:10px;color:var(--muted);text-transform:uppercase;margin-bottom:6px">Lessons Learned</div><div style="font-size:12px;color:var(--muted2)">${p.lessons}</div></div>
-              <div><div style="font-family:var(--mono);font-size:10px;color:var(--muted);text-transform:uppercase;margin-bottom:6px">Limitations</div><div style="font-size:12px;color:var(--yellow)">${p.limitations}</div></div>
+              <div><div style="font-family:var(--mono);font-size:10px;color:var(--muted);text-transform:uppercase;margin-bottom:6px">Lessons Learned</div><div style="font-size:12px;color:var(--muted2)">${escapeHTML(p.lessons)}</div></div>
+              <div><div style="font-family:var(--mono);font-size:10px;color:var(--muted);text-transform:uppercase;margin-bottom:6px">Limitations</div><div style="font-size:12px;color:var(--yellow)">${escapeHTML(p.limitations)}</div></div>
             </div>
           </div>
         </div>
@@ -1002,8 +959,8 @@ function openModal(id){
       <div>
         <div style="border:1px solid var(--border);background:var(--surface);border-radius:12px;padding:14px">
           <div style="font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.14em;text-transform:uppercase;margin-bottom:12px">Spec Sheet</div>
-          ${Object.entries(p.specs).map(([k,v])=>`<div style="display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px"><span style="color:var(--muted);font-family:var(--mono)">${k}</span><span style="color:var(--text)">${v}</span></div>`).join('')}
-          <div style="margin-top:14px;padding:10px;border-radius:8px;background:var(--accent-dim);border:1px solid rgba(154,219,176,.2);font-family:var(--mono);font-size:10px;color:var(--accent)">Status: ${p.status}<br/>Contribution: ${p.contribution}</div>
+          ${Object.entries(p.specs).map(([k,v])=>`<div style="display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px"><span style="color:var(--muted);font-family:var(--mono)">${escapeHTML(k)}</span><span style="color:var(--text)">${escapeHTML(v)}</span></div>`).join('')}
+          <div style="margin-top:14px;padding:10px;border-radius:8px;background:var(--accent-dim);border:1px solid rgba(154,219,176,.2);font-family:var(--mono);font-size:10px;color:var(--accent)">Status: ${escapeHTML(p.status)}<br/>Contribution: ${escapeHTML(p.contribution)}</div>
         </div>
         <div style="margin-top:12px;border:1px solid var(--border);background:var(--surface);border-radius:12px;padding:14px">
           <div style="font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.14em;text-transform:uppercase;margin-bottom:12px">Engineering Image Gallery</div>
@@ -1171,16 +1128,18 @@ resize(); initParticles(); requestAnimationFrame(frame);
 
 // CV buttons
 function handleCV(e){
-  e.preventDefault();
-  alert(`Replace ${SITE_CONFIG.cvPath} in assets/ folder. This demo links to ${SITE_CONFIG.cvPath}. For GitHub Pages, ensure the file exists and is committed.`);
+  if (!SITE_CONFIG.cvPath || /placeholder|yourprofile/i.test(SITE_CONFIG.cvPath)) {
+    e.preventDefault();
+    alert("CV download is not configured. Add a real CV file path to SITE_CONFIG.cvPath and commit that file to GitHub Pages.");
+  } else {
+    e.currentTarget.href = SITE_CONFIG.cvPath;
+    e.currentTarget.setAttribute("download", "");
+  }
 }
 document.getElementById('cvBtn').addEventListener('click',handleCV);
 document.getElementById('cvBtn2').addEventListener('click',handleCV);
 
 // init
-renderCards('all');
-renderLong();
-renderJournal();
 renderContact();
 observe();
 lucide.createIcons();

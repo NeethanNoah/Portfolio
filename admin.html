@@ -78,7 +78,7 @@ function showApp(session){ $("authPanel").classList.toggle("hidden",!!session); 
 async function refreshProjects(){
   const {data,error}=await client.from("projects").select("*").order("created_at",{ascending:false});
   if(error){message("appMessage","Could not load projects: "+error.message,true);return;}
-  $("projectList").innerHTML=data.length?data.map(p=>`<div class="item"><div><strong>${safeText(p.title)}</strong><div class="muted">${safeText(p.category)} · ${safeText(p.status)} · ${safeText(p.project_status||"")}</div></div><div class="actions"><button class="secondary" data-edit="${p.id}">Edit</button><button class="danger" data-delete="${p.id}">Delete</button></div></div>`).join(""):"<p>No projects yet. Add your first project below.</p>";
+  $("projectList").innerHTML=(Array.isArray(data) && data.length)?data.map(p=>`<div class="item"><div><strong>${safeText(p.title)}</strong><div class="muted">${safeText(p.category)} · ${safeText(p.status)} · ${safeText(p.project_status||"")}</div></div><div class="actions"><button class="secondary" data-edit="${p.id}">Edit</button><button class="danger" data-delete="${p.id}">Delete</button></div></div>`).join(""):"<p>No projects yet. Add your first project below.</p>";
   $("projectList").querySelectorAll("[data-edit]").forEach(b=>b.onclick=()=>editProject(data.find(p=>p.id===b.dataset.edit)));
   $("projectList").querySelectorAll("[data-delete]").forEach(b=>b.onclick=()=>deleteProject(b.dataset.delete));
 }
@@ -86,14 +86,14 @@ function editProject(p){
   $("projectId").value=p.id;
   const savedGallery=Array.isArray(p.gallery)?p.gallery.filter(x=>typeof x==="string"):[];
   $("galleryCurrent").innerHTML=savedGallery.length
-    ? `Currently saved: ${savedGallery.length} image(s). New uploads will be added; existing images are kept. <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">${savedGallery.map((url,i)=>`<a href="${safeText(url)}" target="_blank" rel="noopener">Image ${i+1}</a>`).join(" · ")}</div>`
+    ? `Currently saved: ${savedGallery.length} image(s). Tick only the images you want removed, then save. <div style="display:grid;gap:8px;margin-top:10px">${savedGallery.map((url,i)=>/^https:\/\//i.test(url) ? `<label style="display:flex;gap:8px;align-items:center"><input type="checkbox" class="remove-gallery-image" value="${i}" style="width:auto"><a href="${safeText(url)}" target="_blank" rel="noopener noreferrer">Open image ${i+1}</a></label>` : `<div>Image ${i+1}: invalid URL (will be retained unless removed)</div>`).join("")}</div>`
     : "No gallery images saved for this project yet.";
   $("title").value=p.title||"";$("slug").value=p.slug||slugify(p.title||"");
   $("category").value=p.category||"space";$("projectDate").value=p.project_date||"";$("projectStatus").value=p.project_status||"";
   $("software").value=Array.isArray(p.software)?p.software.join(", "):(p.software||"");
   $("summary").value=p.summary||"";$("description").value=p.description||"";$("contribution").value=p.contribution||"";
   $("methodology").value=p.methodology||"";$("specs").value=JSON.stringify(p.specs||{},null,2);$("results").value=p.results||"";
-  $("lessons").value=p.lessons||"";$("limitations").value=p.limitations||"";$("tags").value=(p.tags||[]).join(", ");
+  $("lessons").value=p.lessons||"";$("limitations").value=p.limitations||"";$("tags").value=Array.isArray(p.tags)?p.tags.join(", "):(p.tags||"");
   $("status").value=p.status||"draft";$("reportUrl").value=p.report_url||"";$("githubUrl").value=p.github_url||"";
   $("formHeading").textContent="Edit project";window.scrollTo({top:document.body.scrollHeight,behavior:"smooth"});
 }
@@ -138,6 +138,12 @@ $("projectForm").addEventListener("submit",async e=>{
     const existingProject=existingId ? await client.from("projects").select("gallery").eq("id",existingId).maybeSingle() : {data:null,error:null};
     if(existingProject.error)throw existingProject.error;
     const existingGallery=Array.isArray(existingProject.data?.gallery)?existingProject.data.gallery.filter(x=>typeof x==="string"):[];
+    const removeIndexes = new Set(Array.from(document.querySelectorAll(".remove-gallery-image:checked")).map(el => Number(el.value)));
+    if (removeIndexes.size && !confirm(`Remove ${removeIndexes.size} selected gallery image(s) from this project? The stored files themselves will remain in Supabase Storage.`)) {
+      btn.disabled=false;
+      return;
+    }
+    const retainedGallery = existingGallery.filter((url, index) => !removeIndexes.has(index));
     const uploadedGallery=[];
     for(const file of selectedGallery){uploadedGallery.push(await uploadImage(file,slug,"gallery"));}
     const payload={
@@ -146,7 +152,7 @@ $("projectForm").addEventListener("submit",async e=>{
       summary:$("summary").value.trim(),description:$("description").value.trim(),contribution:$("contribution").value.trim(),
       methodology:$("methodology").value.trim(),specs,tags:$("tags").value.split(",").map(x=>x.trim()).filter(Boolean),
       results:$("results").value.trim(),lessons:$("lessons").value.trim(),limitations:$("limitations").value.trim(),
-      gallery:[...existingGallery,...uploadedGallery],
+      gallery:[...new Set([...retainedGallery,...uploadedGallery])],
       status:$("status").value,report_url:$("reportUrl").value.trim()||null,github_url:$("githubUrl").value.trim()||null,
       updated_at:new Date().toISOString()
     };
@@ -163,8 +169,14 @@ $("projectForm").addEventListener("submit",async e=>{
 (async()=>{
   if(!configured){message("authMessage","Setup needed: add your Supabase Project URL and publishable key to admin.html and index.html.",true);return;}
   $("configNotice").classList.add("hidden");
-  const {data:{session}}=await client.auth.getSession();showApp(!!session);
-  client.auth.onAuthStateChange((_event,session)=>showApp(!!session));
+  try {
+    const {data:{session},error}=await client.auth.getSession();
+    if (error) throw error;
+    showApp(!!session);
+    client.auth.onAuthStateChange((_event,session)=>showApp(!!session));
+  } catch (err) {
+    message("authMessage","Could not check sign-in status: "+err.message,true);
+  }
 })();
 </script>
 </body>
