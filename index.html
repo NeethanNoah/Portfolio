@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Neethan — Aerospace Engineering Portfolio</title>
-<meta name="description" content="Aerospace Engineering portfolio of Neethan — spacecraft, planetary robotics, propulsion, CFD, FEA."/>
+<title>Neethan - Aerospace Engineering Portfolio</title>
+<meta name="description" content="Aerospace Engineering portfolio of Neethan , Spacecraft, planetary robotics, propulsion, CFD, FEA."/>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -274,6 +274,11 @@ img{display:block;max-width:100%}
 }
 .cad-placeholder i{opacity:.6}
 .cad-label{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.12em}
+.project-gallery-preview{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.project-gallery-thumb{display:block;min-width:0;padding:0;overflow:hidden;border:1px solid var(--border2);border-radius:8px;background:var(--surface2);cursor:zoom-in}
+.project-gallery-thumb img{display:block;width:100%;height:180px;object-fit:contain;background:var(--surface2);transition:transform .2s ease}
+.project-gallery-thumb:hover img{transform:scale(1.025)}
+@media(max-width:680px){.project-gallery-preview{grid-template-columns:1fr}.project-gallery-thumb img{height:auto;max-height:280px}}
 .project-details-grid{
   grid-column:1 / -1;
   display:grid;grid-template-columns:repeat(4,1fr);gap:18px;
@@ -410,7 +415,7 @@ img{display:block;max-width:100%}
 <main id="top">
   <section class="hero">
     <div class="hero-copy">
-      <div class="eyebrow">Pearson HND Aerospace Engineering — Systems for Extreme Environments</div>
+      <div class="eyebrow">Pearson HND Aerospace Engineering ; Systems for Extreme Environments</div>
       <h1 class="hero-h1">
         <span class="line filled">Engineering</span>
         <span class="line outline">The Next</span>
@@ -425,7 +430,7 @@ img{display:block;max-width:100%}
         <a href="#" id="cvBtn" class="btn btn-ghost"><i data-lucide="download" style="width:14px;height:14px"></i> Download CV</a>
       </div>
       <div style="margin-top:36px;display:flex;gap:10px;flex-wrap:wrap;font-family:var(--mono);font-size:10px;color:var(--muted)">
-        <span style="border:1px solid var(--border);padding:6px 10px;border-radius:999px">UK • Remote Capable</span>
+        <span style="border:1px solid var(--border);padding:6px 10px;border-radius:999px">Remote Capable</span>
         <span style="border:1px solid var(--border);padding:6px 10px;border-radius:999px">SOLIDWORKS • ANSYS • CFD • FEA</span>
         <span style="border:1px solid var(--border);padding:6px 10px;border-radius:999px;background:var(--accent-dim);color:var(--accent);border-color:rgba(154,219,176,.3)">Available for industrial placement from Summer 2027</span>
       </div>
@@ -482,7 +487,7 @@ img{display:block;max-width:100%}
         <div class="kicker">Technical Stack</div>
         <h2 class="h2">Tools That<br/><span class="outline">Fly</span></h2>
       </div>
-      <p class="body-muted">No proficiency percentages. Only tools I’ve used on real projects with verifiable outputs. Replace placeholders with your genuine screenshots and reports.</p>
+      <p class="body-muted">Replace placeholders with your genuine screenshots and reports.</p>
     </div>
     <div class="skills-grid reveal">
       <div class="skill-col">
@@ -571,7 +576,7 @@ img{display:block;max-width:100%}
         <div class="kicker">Contact & CV</div>
         <h2 class="h2">Let’s Build<br/><span class="outline">Something Flight-Worthy</span></h2>
       </div>
-      <p class="body-muted">Editable via site-config.js. Use a regular email link — no fake contact form. Replace CV file in assets/ and update the path.</p>
+      <p class="body-muted">Editable via site-config.js. Use a regular email link </p>
     </div>
     <div class="contact-grid">
       <div class="contact-box reveal">
@@ -600,7 +605,7 @@ img{display:block;max-width:100%}
   </section>
 
   <footer style="position:relative;z-index:1;max-width:1440px;margin:0 auto;padding:32px 28px;border-top:1px solid var(--border);display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.12em">
-    <span>© <span id="year"></span> NEETHAN — HND AEROSPACE • BUILT FOR GITHUB PAGES</span>
+    <span>© <span id="year"></span> NEETHAN HND AEROSPACE </span>
     <span>TELEMETRY: NOMINAL • NO TRACKERS • REDUCED-MOTION SUPPORTED</span>
   </footer>
 </main>
@@ -622,9 +627,9 @@ const SITE_CONFIG = {
   name: "Neethan",
   role: "Aerospace Engineering Student",
   location: "United Kingdom",
-  email: "neethanoff@gmail.com", // replace
-  linkedin: "https://linkedin.com/in/this-is-neethan",
-  github: "https://github.com/Neethannoah",
+  email: "neethan.email@example.com", // replace
+  linkedin: "https://linkedin.com/in/yourprofile",
+  github: "https://github.com/yourprofile",
   cvPath: "assets/Neethan_CV.pdf", // replace file in assets/
   availableFrom: "Summer 2027"
 };
@@ -869,6 +874,9 @@ function renderLong(){
     sec.className='project-long reveal';
     sec.id=`project-${p.id}`;
     sec.dataset.cat=p.category;
+    // Use real public gallery URLs saved by the admin dashboard.
+    const galleryImages = (Array.isArray(p.images) ? p.images : [])
+      .filter(url => typeof url === "string" && /^https?:\/\///i.test(url.trim()));
     sec.innerHTML=`
       <div>
         <div class="project-meta-top">
@@ -889,12 +897,22 @@ function renderLong(){
       <div class="project-visual">
         <div class="visual-header"><span>${p.id.toUpperCase()} • PREVIEW • ${p.date}</span><div class="dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div></div>
         <div class="visual-body">
-          ${p.cover_image ? `<img src="${escapeAttribute(p.cover_image)}" alt="${escapeAttribute(p.title)}" loading="lazy" style="width:100%;max-height:340px;object-fit:contain;border-radius:8px;margin-bottom:16px">` : ""}
-          <div class="tech-grid">${Array.from({length:96}).map((_,i)=>`<div class="tech-cell ${Math.random()<0.12?'active':''}"></div>`).join('')}</div>
-          <div class="cad-placeholder">
-            <i data-lucide="image-off" style="width:20px;height:20px"></i>
-            <div class="cad-label">Replace with genuine ${p.id} CAD / ANSYS screenshot<br/>assets/${p.id}-01.png — keep factual</div>
-          </div>
+          ${p.cover_image ? `<img src="${escapeAttribute(p.cover_image)}" alt="${escapeAttribute(p.title)} cover image" loading="lazy" style="width:100%;max-height:340px;object-fit:contain;border-radius:8px;margin-bottom:16px">` : ""}
+          ${galleryImages.length ? `
+            <div class="project-gallery-preview" aria-label="${escapeAttribute(p.title)} engineering image gallery">
+              ${galleryImages.map((url,i)=>`
+                <button type="button" class="project-gallery-thumb" aria-label="Open image ${i+1} for ${escapeAttribute(p.title)}" data-gallery-url="${escapeAttribute(url)}">
+                  <img src="${escapeAttribute(url)}" alt="${escapeAttribute(p.title)} — engineering image ${i+1}" loading="lazy" decoding="async">
+                </button>
+              `).join("")}
+            </div>
+          ` : `
+            <div class="tech-grid">${Array.from({length:96}).map((_,i)=>`<div class="tech-cell ${Math.random()<0.12?'active':''}"></div>`).join('')}</div>
+            <div class="cad-placeholder">
+              <i data-lucide="image-off" style="width:20px;height:20px"></i>
+              <div class="cad-label">No engineering gallery images uploaded yet.<br/>Upload images for this project in the admin dashboard.</div>
+            </div>
+          `}
           <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap">
             ${Object.entries(p.specs).map(([k,v])=>`<span style="font-family:var(--mono);font-size:10px;padding:6px 8px;border:1px solid var(--border);border-radius:6px;background:var(--surface2)"><span style="color:var(--muted)">${k}:</span> ${v}</span>`).join('')}
           </div>
@@ -911,6 +929,14 @@ function renderLong(){
   });
   lucide.createIcons();
 }
+
+// Click a project-preview thumbnail to inspect the full-resolution image.
+longProjects.addEventListener("click", e => {
+  const thumb = e.target.closest(".project-gallery-thumb");
+  if (!thumb) return;
+  const url = thumb.dataset.galleryUrl;
+  if (url && /^https?:\/\///i.test(url)) window.open(url, "_blank", "noopener,noreferrer");
+});
 
 function renderJournal(){
   journalGrid.innerHTML='';
@@ -1024,7 +1050,7 @@ function renderProjectGallery(project) {
     image.addEventListener('error', () => {
       figure.innerHTML = '<div style="aspect-ratio:4/3;display:grid;place-items:center;text-align:center;padding:10px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--muted);font-size:11px">Image could not load. Check its URL and Storage permissions.</div>';
     });
-    image.addEventListener('click', (event) => { event.preventDefault(); event.stopPropagation(); openImageViewer(url, project.title + ' — image ' + (index + 1)); });
+    image.addEventListener('click', () => window.open(url, '_blank', 'noopener,noreferrer'));
 
     const caption = document.createElement('figcaption');
     caption.textContent = 'IMAGE ' + String(index + 1).padStart(2, '0');
@@ -1035,44 +1061,13 @@ function renderProjectGallery(project) {
   });
 }
 
-function openImageViewer(url, title) {
-  let viewer = document.getElementById('imageViewerOverlay');
-  if (!viewer) {
-    viewer = document.createElement('div');
-    viewer.id = 'imageViewerOverlay';
-    viewer.style.cssText = 'position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,.94);display:none;align-items:center;justify-content:center;padding:24px;';
-    viewer.innerHTML = `
-      <button type="button" id="imageViewerClose" aria-label="Close image" style="position:absolute;top:18px;right:18px;width:44px;height:44px;border:1px solid #34414a;border-radius:10px;background:#111619;color:#fff;font-size:26px;cursor:pointer">×</button>
-      <div style="max-width:min(1200px,96vw);max-height:90vh;display:flex;flex-direction:column;align-items:center;gap:10px">
-        <img id="imageViewerImage" alt="" style="display:block;max-width:100%;max-height:82vh;object-fit:contain;border-radius:8px">
-        <div id="imageViewerCaption" style="font:12px/1.5 monospace;color:#c0cbd1;text-align:center"></div>
-      </div>`;
-    document.body.appendChild(viewer);
-    viewer.addEventListener('click', event => { if (event.target === viewer || event.target.id === 'imageViewerClose') closeImageViewer(); });
-    viewer.querySelector('#imageViewerImage').addEventListener('click', event => { event.preventDefault(); event.stopPropagation(); });
-  }
-  document.getElementById('imageViewerImage').src = url;
-  document.getElementById('imageViewerImage').alt = title;
-  document.getElementById('imageViewerCaption').textContent = title + ' · Click outside or press Escape to close';
-  viewer.style.display = 'flex';
-}
-
-function closeImageViewer() {
-  const viewer = document.getElementById('imageViewerOverlay');
-  if (viewer) {
-    viewer.style.display = 'none';
-    const image = document.getElementById('imageViewerImage');
-    if (image) image.removeAttribute('src');
-  }
-}
-
 function closeModal(){
   modal.classList.remove('open');
   document.body.style.overflow='';
 }
 document.getElementById('modalClose').addEventListener('click',closeModal);
 document.getElementById('modalBackdrop').addEventListener('click',closeModal);
-window.addEventListener('keydown',e=>{ if(e.key==='Escape') { const viewer=document.getElementById('imageViewerOverlay'); if(viewer && viewer.style.display==='flex') closeImageViewer(); else closeModal(); } });
+window.addEventListener('keydown',e=>{ if(e.key==='Escape') closeModal(); });
 
 // filter
 document.getElementById('filterBar').addEventListener('click',e=>{
