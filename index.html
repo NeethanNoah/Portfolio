@@ -759,7 +759,7 @@ async function loadPublishedProjects() {
     renderLong();
     renderJournal();
     renderContact();
-    setProjectsState("Projects could not be loaded from Supabase. Check the connection and access policies, then try again.", true);
+    setProjectsState("Supabase error: " + (err && err.message ? err.message : String(err)) + " — Check the projects table, public SELECT policy, and connection, then refresh.", true);
   }
 }
 
